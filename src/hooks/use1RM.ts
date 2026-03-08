@@ -26,8 +26,19 @@ function sortByDateAsc(a: OneRMHistoryPoint, b: OneRMHistoryPoint): number {
   return new Date(a.date).getTime() - new Date(b.date).getTime();
 }
 
+function sortByPerformedAtDesc(a: { performedAt: string }, b: { performedAt: string }): number {
+  return new Date(b.performedAt).getTime() - new Date(a.performedAt).getTime();
+}
+
 export function use1RM(exerciseId: string): Use1RMResult {
-  const entries = useExerciseStore((state) => state.getEntriesForExercise(exerciseId));
+  const allEntries = useExerciseStore((state) => state.entries);
+  const entries = useMemo(
+    () =>
+      allEntries
+        .filter((entry) => entry.exerciseId === exerciseId)
+        .sort(sortByPerformedAtDesc),
+    [allEntries, exerciseId],
+  );
 
   const current1RM = useMemo(() => {
     const latestEntry = entries[0];

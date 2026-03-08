@@ -56,6 +56,10 @@ function formatSetLine(set: ExerciseSet, primaryUnit: WeightUnit): string {
   return `${formatDualWeight(set.weightKg, primaryUnit)} × ${set.reps}${set.isWarmup ? ' (warm-up)' : ''}`;
 }
 
+function sortEntriesByPerformedAtDesc(a: { performedAt: string }, b: { performedAt: string }): number {
+  return new Date(b.performedAt).getTime() - new Date(a.performedAt).getTime();
+}
+
 function OneRMTrendChart({ points, unit }: OneRMTrendChartProps) {
   if (points.length < 2) {
     return (
@@ -147,13 +151,29 @@ export default function ExerciseHistoryPage() {
   const exercise = useExerciseStore((state) =>
     state.exercises.find((item) => item.id === safeExerciseId),
   );
-  const entries = useExerciseStore((state) => state.getEntriesForExercise(safeExerciseId));
+  const deleteEntry = useExerciseStore((state) => state.deleteEntry);
+  const allEntries = useExerciseStore((state) => state.entries);
+  const entries = useMemo(
+    () =>
+      allEntries
+        .filter((entry) => entry.exerciseId === safeExerciseId)
+        .sort(sortEntriesByPerformedAtDesc),
+    [allEntries, safeExerciseId],
+  );
   const { current1RM, best1RM, history } = use1RM(safeExerciseId);
 
   const chartPoints = useMemo(() => history.slice(-CHART_MAX_POINTS), [history]);
 
   function handleBack(): void {
     navigate(-1);
+  }
+
+  function handleDeleteEntry(entryId: string): void {
+    if (!window.confirm('Delete this entry?')) {
+      return;
+    }
+
+    void deleteEntry(entryId);
   }
 
   return (
@@ -211,8 +231,19 @@ export default function ExerciseHistoryPage() {
               const sessionOneRM = best1RMFromSets(entry.sets);
 
               return (
-                <article key={entry.id} className="rounded-xl bg-slate-800 p-4">
-                  <h3 className="text-base font-semibold text-white">{formatSessionDate(entry.performedAt)}</h3>
+                <article key={entry.id} className="relative rounded-xl bg-slate-800 p-4">
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteEntry(entry.id)}
+                    className="absolute right-4 top-4 flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-slate-700 text-lg text-white transition hover:bg-red-600"
+                    aria-label={`Delete session from ${formatSessionDate(entry.performedAt)}`}
+                  >
+                    🗑️
+                  </button>
+
+                  <h3 className="pr-12 text-base font-semibold text-white">
+                    {formatSessionDate(entry.performedAt)}
+                  </h3>
 
                   <ul className="mt-3 space-y-2 text-sm text-slate-100">
                     {entry.sets.map((set) => (
