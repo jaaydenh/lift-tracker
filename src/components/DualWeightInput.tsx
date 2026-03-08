@@ -53,7 +53,7 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
     <div className="flex items-center gap-3">
       <button
         type="button"
-        className="h-12 w-12 shrink-0 rounded-lg bg-slate-600 text-2xl font-semibold leading-none"
+        className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-600 text-2xl font-semibold leading-none"
         onClick={() => adjustWeight(-1)}
       >
         −
@@ -97,7 +97,7 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
 
       <button
         type="button"
-        className="h-12 w-12 shrink-0 rounded-lg bg-slate-600 text-2xl font-semibold leading-none"
+        className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-600 text-2xl font-semibold leading-none"
         onClick={() => adjustWeight(1)}
       >
         +

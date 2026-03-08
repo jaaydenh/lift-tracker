@@ -109,7 +109,7 @@ function OneRMTrendChart({ points, unit }: OneRMTrendChartProps) {
           <polyline
             points={polylinePoints}
             fill="none"
-            stroke="rgb(96 165 250)"
+            stroke="rgb(129 140 248)"
             strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -121,8 +121,8 @@ function OneRMTrendChart({ points, unit }: OneRMTrendChartProps) {
               cx={point.x}
               cy={point.y}
               r="2"
-              fill="rgb(191 219 254)"
-              stroke="rgb(30 64 175)"
+              fill="rgb(224 231 255)"
+              stroke="rgb(67 56 202)"
               strokeWidth="0.5"
             />
           ))}
@@ -157,12 +157,12 @@ export default function ExerciseHistoryPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-6">
+    <div className="page-enter flex flex-col gap-4 pb-6">
       <header className="flex items-center gap-3">
         <button
           type="button"
           onClick={handleBack}
-          className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800 text-xl text-white transition hover:bg-slate-700"
+          className="flex min-h-12 min-w-12 items-center justify-center rounded-xl bg-slate-800 text-xl text-white transition hover:bg-slate-700"
           aria-label="Go back"
         >
           ←
@@ -226,7 +226,7 @@ export default function ExerciseHistoryPage() {
                   </ul>
 
                   {sessionOneRM !== null && (
-                    <p className="mt-3 text-sm font-medium text-blue-200">
+                    <p className="mt-3 text-sm font-medium text-indigo-200">
                       Estimated 1RM: {formatDualWeight(sessionOneRM, primaryUnit)}
                     </p>
                   )}

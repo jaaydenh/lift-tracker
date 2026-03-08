@@ -55,7 +55,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="page-enter space-y-6 pb-24">
       <header className="flex items-center gap-3">
         <button
           type="button"

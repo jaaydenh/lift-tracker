@@ -45,7 +45,7 @@ export default function HomePage() {
   const recentlyTrained = loggedExercises.filter((item) => item.daysSince <= freshThreshold);
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="page-enter space-y-6 pb-24">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">{APP_NAME}</h1>
         <Link

@@ -28,9 +28,9 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white px-4 py-8 flex items-center justify-center">
+    <div className="page-enter flex min-h-screen items-center justify-center bg-slate-900 px-4 py-8 text-white">
       <div className="w-full max-w-md space-y-8">
-        <header className="text-center space-y-2">
+        <header className="space-y-2 text-center">
           <h1 className="text-3xl font-bold">Welcome to LiftTracker</h1>
           <p className="text-slate-300">Set your preferences to get started.</p>
         </header>
@@ -41,9 +41,9 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={() => setPrimaryUnit('kg')}
-              className={`h-16 rounded-xl border text-lg font-semibold transition ${
+              className={`min-h-16 rounded-xl border text-lg font-semibold transition ${
                 primaryUnit === 'kg'
-                  ? 'border-blue-400 bg-blue-500/20 text-blue-100'
+                  ? 'border-indigo-400 bg-indigo-500/20 text-indigo-100'
                   : 'border-slate-700 bg-slate-800 text-white'
               }`}
             >
@@ -52,9 +52,9 @@ export default function OnboardingPage() {
             <button
               type="button"
               onClick={() => setPrimaryUnit('lbs')}
-              className={`h-16 rounded-xl border text-lg font-semibold transition ${
+              className={`min-h-16 rounded-xl border text-lg font-semibold transition ${
                 primaryUnit === 'lbs'
-                  ? 'border-blue-400 bg-blue-500/20 text-blue-100'
+                  ? 'border-indigo-400 bg-indigo-500/20 text-indigo-100'
                   : 'border-slate-700 bg-slate-800 text-white'
               }`}
             >
@@ -71,9 +71,9 @@ export default function OnboardingPage() {
                 key={option.value}
                 type="button"
                 onClick={() => setAgeBracket(option.value)}
-                className={`h-16 rounded-xl border text-lg font-semibold transition ${
+                className={`min-h-16 rounded-xl border text-lg font-semibold transition ${
                   ageBracket === option.value
-                    ? 'border-blue-400 bg-blue-500/20 text-blue-100'
+                    ? 'border-indigo-400 bg-indigo-500/20 text-indigo-100'
                     : 'border-slate-700 bg-slate-800 text-white'
                 }`}
               >
@@ -87,7 +87,7 @@ export default function OnboardingPage() {
           type="button"
           onClick={handleStartTracking}
           disabled={isSaving}
-          className="w-full h-16 rounded-xl bg-blue-600 text-white text-lg font-semibold disabled:opacity-70"
+          className="min-h-16 w-full rounded-xl bg-indigo-500 text-lg font-semibold text-white transition hover:bg-indigo-400 disabled:opacity-70"
         >
           {isSaving ? 'Saving...' : 'Start Tracking'}
         </button>

@@ -59,6 +59,7 @@ export default function LogExercisePage() {
 
   const [sets, setSets] = useState<ExerciseSet[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaveConfirmed, setIsSaveConfirmed] = useState(false);
 
   useEffect(() => {
     if (!exerciseId || !exercise) {
@@ -71,7 +72,7 @@ export default function LogExercisePage() {
 
   if (!exerciseId || !exercise) {
     return (
-      <div className="space-y-4">
+      <div className="page-enter space-y-4">
         <button
           type="button"
           onClick={() => navigate('/')}
@@ -117,6 +118,7 @@ export default function LogExercisePage() {
     }
 
     setIsSaving(true);
+    setIsSaveConfirmed(false);
 
     try {
       await addEntry({
@@ -127,14 +129,20 @@ export default function LogExercisePage() {
         estimated1RM_kg: best1RMFromSets(sets),
       });
 
+      setIsSaveConfirmed(true);
+      await new Promise((resolve) => {
+        window.setTimeout(resolve, 240);
+      });
+
       navigate('/');
     } finally {
       setIsSaving(false);
+      setIsSaveConfirmed(false);
     }
   };
 
   return (
-    <div className="flex flex-col gap-4 pb-4">
+    <div className="page-enter flex flex-col gap-4 pb-4">
       <header className="rounded-xl bg-slate-800 p-3">
         <div className="flex items-center justify-between gap-3">
           <button
@@ -207,9 +215,11 @@ export default function LogExercisePage() {
           void handleSave();
         }}
         disabled={sets.length === 0 || isSaving}
-        className="w-full min-h-12 rounded-xl bg-green-600 px-4 py-3 text-lg font-bold text-white disabled:cursor-not-allowed disabled:bg-slate-600"
+        className={`w-full min-h-12 rounded-xl px-4 py-3 text-lg font-bold text-white transition ${
+          sets.length === 0 ? 'bg-slate-600' : isSaveConfirmed ? 'bg-green-500' : 'bg-green-600'
+        } disabled:cursor-not-allowed`}
       >
-        {isSaving ? 'Saving...' : 'Save Workout'}
+        {isSaveConfirmed ? '✓ Saved' : isSaving ? 'Saving...' : 'Save Workout'}
       </button>
     </div>
   );

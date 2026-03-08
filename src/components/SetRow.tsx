@@ -59,7 +59,7 @@ export default function SetRow({
           <button
             type="button"
             onClick={() => onUpdate({ ...exerciseSet, isWarmup: !exerciseSet.isWarmup })}
-            className={`h-12 min-w-12 rounded-lg px-3 text-sm font-semibold ${
+            className={`min-h-12 min-w-12 rounded-lg px-3 text-sm font-semibold ${
               exerciseSet.isWarmup
                 ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-400/50'
                 : 'bg-slate-800 text-slate-300 border border-slate-600'
@@ -71,7 +71,7 @@ export default function SetRow({
           <button
             type="button"
             onClick={onRemove}
-            className="h-12 min-w-12 rounded-lg border border-rose-400/50 bg-rose-500/20 px-3 text-2xl leading-none text-rose-200"
+            className="min-h-12 min-w-12 rounded-lg border border-rose-400/50 bg-rose-500/20 px-3 text-2xl leading-none text-rose-200"
             aria-label={`Remove set ${index + 1}`}
           >
             ×
@@ -96,7 +96,7 @@ export default function SetRow({
           <div className="flex items-center gap-3">
             <button
               type="button"
-              className="h-12 w-12 shrink-0 rounded-lg bg-slate-800 text-2xl font-semibold leading-none"
+              className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-800 text-2xl font-semibold leading-none"
               onClick={() => updateReps(exerciseSet.reps - 1)}
             >
               −
@@ -120,7 +120,7 @@ export default function SetRow({
                       setDraftReps(exerciseSet.reps.toString());
                     }
                   }}
-                  inputMode="decimal"
+                  inputMode="numeric"
                   className="min-h-12 w-full bg-transparent text-center text-3xl font-bold focus:outline-none"
                 />
               ) : (
@@ -137,7 +137,7 @@ export default function SetRow({
 
             <button
               type="button"
-              className="h-12 w-12 shrink-0 rounded-lg bg-slate-800 text-2xl font-semibold leading-none"
+              className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-800 text-2xl font-semibold leading-none"
               onClick={() => updateReps(exerciseSet.reps + 1)}
             >
               +

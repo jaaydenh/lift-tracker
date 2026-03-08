@@ -60,7 +60,7 @@ export default function ExerciseCard({
     return (
       <Link
         to={`/log/${exercise.id}`}
-        className="block rounded-xl bg-slate-800 p-4 transition hover:bg-slate-700/90 active:scale-[0.99]"
+        className="block min-h-12 rounded-xl bg-slate-800 p-4 transition hover:bg-slate-700/90 active:scale-[0.99]"
       >
         <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
         <p className="mt-2 text-sm text-slate-400">No sessions yet</p>
@@ -85,7 +85,7 @@ export default function ExerciseCard({
   return (
     <Link
       to={`/log/${exercise.id}`}
-      className="block rounded-xl bg-slate-800 p-4 transition hover:bg-slate-700/90 active:scale-[0.99]"
+      className="block min-h-12 rounded-xl bg-slate-800 p-4 transition hover:bg-slate-700/90 active:scale-[0.99]"
     >
       <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
 

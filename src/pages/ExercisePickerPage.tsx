@@ -151,12 +151,12 @@ export default function ExercisePickerPage() {
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-6">
+    <div className="page-enter flex flex-col gap-4 pb-6">
       <header className="flex items-center gap-3">
         <button
           type="button"
           onClick={handleBack}
-          className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800 text-xl text-white transition hover:bg-slate-700"
+          className="flex min-h-12 min-w-12 items-center justify-center rounded-xl bg-slate-800 text-xl text-white transition hover:bg-slate-700"
           aria-label="Go back"
         >
           ←
@@ -170,7 +170,7 @@ export default function ExercisePickerPage() {
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search exercises..."
-          className="h-12 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none"
+          className="min-h-12 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 text-white placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none"
         />
       </section>
 
@@ -231,7 +231,7 @@ export default function ExercisePickerPage() {
                       >
                         <span className="text-white">{exercise.name}</span>
                         {exercise.isCustom && (
-                          <span className="rounded-full bg-blue-500/20 px-2 py-1 text-xs text-blue-200">
+                          <span className="rounded-full bg-indigo-500/20 px-2 py-1 text-xs text-indigo-200">
                             Custom
                           </span>
                         )}
@@ -268,7 +268,7 @@ export default function ExercisePickerPage() {
               onChange={(event) => setCustomExerciseName(event.target.value)}
               placeholder="e.g., Safety Bar Squat"
               autoFocus
-              className="h-12 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 text-white placeholder:text-slate-400 focus:border-blue-400 focus:outline-none"
+              className="min-h-12 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 text-white placeholder:text-slate-400 focus:border-indigo-400 focus:outline-none"
             />
 
             <label className="block text-sm font-medium text-slate-300" htmlFor="custom-exercise-category">
@@ -278,7 +278,7 @@ export default function ExercisePickerPage() {
               id="custom-exercise-category"
               value={customCategory}
               onChange={(event) => setCustomCategory(event.target.value as ExerciseCategory)}
-              className="h-12 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 text-white focus:border-blue-400 focus:outline-none"
+              className="min-h-12 w-full rounded-lg border border-slate-700 bg-slate-900 px-3 text-white focus:border-indigo-400 focus:outline-none"
             >
               {CATEGORY_ORDER.map((category) => (
                 <option key={category} value={category}>
@@ -291,7 +291,7 @@ export default function ExercisePickerPage() {
               <button
                 type="submit"
                 disabled={customExerciseName.trim().length === 0 || isSubmittingCustomExercise}
-                className="min-h-12 flex-1 rounded-lg bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="min-h-12 flex-1 rounded-lg bg-indigo-500 px-4 py-3 font-semibold text-white transition hover:bg-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isSubmittingCustomExercise ? 'Adding...' : 'Add'}
               </button>
