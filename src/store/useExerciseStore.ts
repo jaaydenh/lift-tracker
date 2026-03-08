@@ -14,6 +14,7 @@ interface ExerciseStore {
   isLoaded: boolean;
   loadData: () => Promise<void>;
   addEntry: (entry: ExerciseEntry) => Promise<void>;
+  updateEntry: (entry: ExerciseEntry) => Promise<void>;
   deleteEntry: (id: string) => Promise<void>;
   addCustomExercise: (exercise: Exercise) => Promise<void>;
   getEntriesForExercise: (exerciseId: string) => ExerciseEntry[];
@@ -38,6 +39,15 @@ export const useExerciseStore = create<ExerciseStore>((set, get) => ({
 
   addEntry: async (entry) => {
     set((state) => ({ entries: [entry, ...state.entries] }));
+    await db.entries.put(entry);
+  },
+
+  updateEntry: async (entry) => {
+    set((state) => ({
+      entries: state.entries.map((existingEntry) =>
+        existingEntry.id === entry.id ? entry : existingEntry,
+      ),
+    }));
     await db.entries.put(entry);
   },
 

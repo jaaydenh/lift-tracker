@@ -11,6 +11,7 @@ export default function Router() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/log/:exerciseId" element={<LogExercisePage />} />
+        <Route path="/edit/:entryId" element={<LogExercisePage />} />
         <Route path="/pick" element={<ExercisePickerPage />} />
         <Route path="/history/:exerciseId" element={<ExerciseHistoryPage />} />
         <Route path="/settings" element={<SettingsPage />} />

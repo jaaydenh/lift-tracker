@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Trash2 } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { use1RM } from '../hooks/use1RM';
 import { best1RMFromSetsDetailed } from '../shared/calc/oneRepMax';
 import { formatWeight } from '../shared/calc/units';
@@ -235,16 +235,26 @@ export default function ExerciseHistoryPage() {
 
               return (
                 <article key={entry.id} className="relative rounded-xl bg-slate-800 p-4">
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteEntry(entry.id)}
-                    className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700 text-slate-400 transition hover:bg-red-600 hover:text-white"
-                    aria-label={`Delete session from ${formatSessionDate(entry.performedAt)}`}
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                  <div className="absolute right-3 top-3 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate(`/edit/${entry.id}`)}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700 text-slate-400 transition hover:bg-indigo-600 hover:text-white"
+                      aria-label={`Edit session from ${formatSessionDate(entry.performedAt)}`}
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteEntry(entry.id)}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700 text-slate-400 transition hover:bg-red-600 hover:text-white"
+                      aria-label={`Delete session from ${formatSessionDate(entry.performedAt)}`}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
 
-                  <h3 className="pr-12 text-base font-semibold text-white">
+                  <h3 className="pr-24 text-base font-semibold text-white">
                     {formatSessionDate(entry.performedAt)}
                   </h3>
 

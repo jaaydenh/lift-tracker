@@ -16,6 +16,18 @@ function daysAgoFromIsoDate(isoDate: string): number {
   return Math.max(0, Math.floor((Date.now() - new Date(isoDate).getTime()) / DAY_IN_MS));
 }
 
+function formatDateInputValue(date: Date): string {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function isoDateToDateInputValue(isoDate: string): string {
+  return formatDateInputValue(new Date(isoDate));
+}
+
+function todayDateInputValue(): string {
+  return formatDateInputValue(new Date());
+}
+
 function createSet(weightKg: number | null, reps: number): ExerciseSet {
   return {
     id: uuidv4(),
@@ -26,20 +38,34 @@ function createSet(weightKg: number | null, reps: number): ExerciseSet {
   };
 }
 
+function cloneSet(set: ExerciseSet): ExerciseSet {
+  return {
+    ...set,
+  };
+}
+
 export default function LogExercisePage() {
-  const { exerciseId } = useParams<{ exerciseId: string }>();
+  const { exerciseId: exerciseIdParam, entryId } = useParams<{ exerciseId?: string; entryId?: string }>();
   const navigate = useNavigate();
+  const isEditMode = Boolean(entryId);
 
   const exercises = useExerciseStore((state) => state.exercises);
-  const latestEntry = useExerciseStore((state) => (exerciseId ? state.getLatestEntry(exerciseId) : null));
+  const entryToEdit = useExerciseStore((state) =>
+    entryId ? state.entries.find((entry) => entry.id === entryId) : undefined,
+  );
+  const resolvedExerciseId = entryToEdit?.exerciseId ?? exerciseIdParam;
+  const latestEntry = useExerciseStore((state) =>
+    resolvedExerciseId ? state.getLatestEntry(resolvedExerciseId) : null,
+  );
   const addEntry = useExerciseStore((state) => state.addEntry);
+  const updateEntry = useExerciseStore((state) => state.updateEntry);
 
   const primaryUnit = useSettingsStore((state) => state.settings.primaryUnit);
   const barbellWeightKg = useSettingsStore((state) => state.settings.barbellWeightKg);
 
   const exercise = useMemo(
-    () => exercises.find((item) => item.id === exerciseId),
-    [exerciseId, exercises],
+    () => exercises.find((item) => item.id === resolvedExerciseId),
+    [resolvedExerciseId, exercises],
   );
 
   const isBodyweight = exercise?.category === 'bodyweight';
@@ -59,24 +85,55 @@ export default function LogExercisePage() {
   const initialWeightKg = isBodyweight ? null : previousWorkingSet?.weightKg ?? barbellWeightKg;
   const initialReps = previousWorkingSet?.reps ?? 5;
 
+  const defaultPerformedDate = useMemo(
+    () => (entryToEdit ? isoDateToDateInputValue(entryToEdit.performedAt) : todayDateInputValue()),
+    [entryToEdit],
+  );
+
   const [sets, setSets] = useState<ExerciseSet[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaveConfirmed, setIsSaveConfirmed] = useState(false);
-  const [performedDate, setPerformedDate] = useState(() => {
-    const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  });
+  const [performedDate, setPerformedDate] = useState(defaultPerformedDate);
 
   useEffect(() => {
-    if (!exerciseId || !exercise) {
+    setPerformedDate(defaultPerformedDate);
+  }, [defaultPerformedDate]);
+
+  useEffect(() => {
+    if (!resolvedExerciseId || !exercise) {
       setSets([]);
       return;
     }
 
-    setSets([createSet(initialWeightKg, initialReps)]);
-  }, [exercise, exerciseId, initialReps, initialWeightKg]);
+    if (isEditMode) {
+      if (!entryToEdit) {
+        setSets([]);
+        return;
+      }
 
-  if (!exerciseId || !exercise) {
+      setSets(entryToEdit.sets.map(cloneSet));
+      return;
+    }
+
+    setSets([createSet(initialWeightKg, initialReps)]);
+  }, [entryToEdit, exercise, initialReps, initialWeightKg, isEditMode, resolvedExerciseId]);
+
+  if (isEditMode && !entryToEdit) {
+    return (
+      <div className="page-enter space-y-4">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="inline-flex min-h-12 items-center rounded-lg bg-slate-700 px-4 font-semibold"
+        >
+          ← Back
+        </button>
+        <p className="rounded-lg bg-slate-800 p-4 text-slate-300">Entry not found.</p>
+      </div>
+    );
+  }
+
+  if (!resolvedExerciseId || !exercise) {
     return (
       <div className="page-enter space-y-4">
         <button
@@ -123,29 +180,61 @@ export default function LogExercisePage() {
       return;
     }
 
+    if (isEditMode && !entryToEdit) {
+      return;
+    }
+
     setIsSaving(true);
     setIsSaveConfirmed(false);
 
     try {
-      await addEntry({
-        id: uuidv4(),
-        exerciseId,
+      const entryIdToSave = isEditMode ? entryToEdit?.id : uuidv4();
+
+      if (!entryIdToSave) {
+        return;
+      }
+
+      const entry = {
+        id: entryIdToSave,
+        exerciseId: resolvedExerciseId,
         sets,
         performedAt: new Date(performedDate + 'T00:00:00').toISOString(),
         estimated1RM_kg: best1RMFromSets(sets),
-      });
+      };
+
+      if (isEditMode) {
+        await updateEntry(entry);
+      } else {
+        await addEntry(entry);
+      }
 
       setIsSaveConfirmed(true);
       await new Promise((resolve) => {
         window.setTimeout(resolve, 240);
       });
 
-      navigate('/');
+      if (isEditMode) {
+        navigate(`/history/${resolvedExerciseId}`);
+      } else {
+        navigate('/');
+      }
     } finally {
       setIsSaving(false);
       setIsSaveConfirmed(false);
     }
   };
+
+  const saveButtonLabel = isSaveConfirmed
+    ? isEditMode
+      ? '✓ Updated'
+      : '✓ Saved'
+    : isSaving
+      ? isEditMode
+        ? 'Updating...'
+        : 'Saving...'
+      : isEditMode
+        ? 'Update Exercise'
+        : 'Save Exercise';
 
   return (
     <div className="page-enter flex flex-col gap-4 pb-4">
@@ -160,10 +249,17 @@ export default function LogExercisePage() {
             ←
           </button>
 
-          <h1 className="flex-1 text-center text-xl font-bold">{exercise.name}</h1>
+          <div className="flex-1 text-center">
+            <h1 className="text-xl font-bold">{exercise.name}</h1>
+            {isEditMode && (
+              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-indigo-300">
+                Editing Session
+              </p>
+            )}
+          </div>
 
           <Link
-            to={`/history/${exerciseId}`}
+            to={`/history/${resolvedExerciseId}`}
             className="inline-flex min-h-12 items-center rounded-lg bg-slate-700 px-3 text-sm font-semibold"
           >
             History
@@ -258,7 +354,7 @@ export default function LogExercisePage() {
           sets.length === 0 ? 'bg-slate-600' : isSaveConfirmed ? 'bg-green-500' : 'bg-green-600'
         } disabled:cursor-not-allowed`}
       >
-        {isSaveConfirmed ? '✓ Saved' : isSaving ? 'Saving...' : 'Save Exercise'}
+        {saveButtonLabel}
       </button>
     </div>
   );
