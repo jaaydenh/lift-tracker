@@ -5,10 +5,12 @@ import type { WeightUnit } from '../shared/models/types';
 interface PercentageChartProps {
   oneRM: number;
   primaryUnit: WeightUnit;
+  sourceReps?: number;
 }
 
-export default function PercentageChart({ oneRM, primaryUnit }: PercentageChartProps) {
+export default function PercentageChart({ oneRM, primaryUnit, sourceReps }: PercentageChartProps) {
   const rows = percentageTable(oneRM);
+  const showAccuracyWarning = sourceReps !== undefined && sourceReps > 10;
 
   return (
     <details className="rounded-xl bg-slate-800 px-3 py-2">
@@ -16,6 +18,12 @@ export default function PercentageChart({ oneRM, primaryUnit }: PercentageChartP
         <span>1RM % Chart ({formatWeight(oneRM, primaryUnit)} {primaryUnit})</span>
         <span className="text-xs text-slate-400">Tap to expand</span>
       </summary>
+
+      {showAccuracyWarning && (
+        <p className="text-xs text-yellow-400 bg-yellow-400/10 rounded-lg px-3 py-2 mt-2 mb-1">
+          ⚠️ Estimated from a {sourceReps}-rep set — accuracy decreases above 10 reps
+        </p>
+      )}
 
       <div className="mt-2 overflow-hidden rounded-lg border border-slate-700">
         <table className="w-full text-sm font-mono">

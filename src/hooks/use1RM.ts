@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { best1RMFromSets } from '../shared/calc/oneRepMax';
+import { best1RMFromSets, best1RMFromSetsDetailed } from '../shared/calc/oneRepMax';
 import { useExerciseStore } from '../store/useExerciseStore';
 
 interface OneRMHistoryPoint {
@@ -9,6 +9,7 @@ interface OneRMHistoryPoint {
 
 interface Use1RMResult {
   current1RM: number | null;
+  currentSourceReps: number | null;
   best1RM: number | null;
   history: OneRMHistoryPoint[];
 }
@@ -40,15 +41,18 @@ export function use1RM(exerciseId: string): Use1RMResult {
     [allEntries, exerciseId],
   );
 
-  const current1RM = useMemo(() => {
+  const current1RMData = useMemo(() => {
     const latestEntry = entries[0];
 
     if (!latestEntry) {
       return null;
     }
 
-    return best1RMFromSets(latestEntry.sets);
+    return best1RMFromSetsDetailed(latestEntry.sets);
   }, [entries]);
+
+  const current1RM = current1RMData?.value ?? null;
+  const currentSourceReps = current1RMData?.sourceReps ?? null;
 
   const history = useMemo(() => {
     return entries
@@ -72,6 +76,7 @@ export function use1RM(exerciseId: string): Use1RMResult {
 
   return {
     current1RM,
+    currentSourceReps,
     best1RM,
     history,
   };

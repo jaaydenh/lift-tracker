@@ -51,3 +51,24 @@ export function best1RMFromSets(sets: ExerciseSet[]): number | null {
   }
   return best;
 }
+
+export interface OneRMEstimate {
+  value: number;
+  sourceReps: number;
+  sourceWeightKg: number;
+}
+
+/**
+ * Like best1RMFromSets but also returns which set produced the estimate.
+ */
+export function best1RMFromSetsDetailed(sets: ExerciseSet[]): OneRMEstimate | null {
+  let best: OneRMEstimate | null = null;
+  for (const set of sets) {
+    if (set.isWarmup || set.weightKg === null) continue;
+    const est = estimate1RM(set.weightKg, set.reps);
+    if (est !== null && (best === null || est > best.value)) {
+      best = { value: est, sourceReps: set.reps, sourceWeightKg: set.weightKg };
+    }
+  }
+  return best;
+}

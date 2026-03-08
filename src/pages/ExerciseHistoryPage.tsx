@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { use1RM } from '../hooks/use1RM';
-import { best1RMFromSets } from '../shared/calc/oneRepMax';
+import { best1RMFromSetsDetailed } from '../shared/calc/oneRepMax';
 import { formatWeight } from '../shared/calc/units';
 import type { ExerciseSet, WeightUnit } from '../shared/models/types';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -228,7 +228,9 @@ export default function ExerciseHistoryPage() {
             <h2 className="text-lg font-semibold text-white">Past Sessions</h2>
 
             {entries.map((entry) => {
-              const sessionOneRM = best1RMFromSets(entry.sets);
+              const session1RMData = best1RMFromSetsDetailed(entry.sets);
+              const sessionOneRM = session1RMData?.value ?? null;
+              const sessionSourceReps = session1RMData?.sourceReps;
 
               return (
                 <article key={entry.id} className="relative rounded-xl bg-slate-800 p-4">
@@ -257,9 +259,16 @@ export default function ExerciseHistoryPage() {
                   </ul>
 
                   {sessionOneRM !== null && (
-                    <p className="mt-3 text-sm font-medium text-indigo-200">
-                      Estimated 1RM: {formatDualWeight(sessionOneRM, primaryUnit)}
-                    </p>
+                    <>
+                      <p className="mt-3 text-sm font-medium text-indigo-200">
+                        Estimated 1RM: {formatDualWeight(sessionOneRM, primaryUnit)}
+                      </p>
+                      {sessionSourceReps !== undefined && sessionSourceReps > 10 && (
+                        <p className="mt-1 text-xs text-yellow-400">
+                          ⚠️ Est. from {sessionSourceReps}-rep set
+                        </p>
+                      )}
+                    </>
                   )}
                 </article>
               );

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import DualWeightDisplay from '../components/DualWeightDisplay';
 import PercentageChart from '../components/PercentageChart';
 import SetRow from '../components/SetRow';
-import { best1RMFromSets } from '../shared/calc/oneRepMax';
+import { best1RMFromSets, best1RMFromSetsDetailed } from '../shared/calc/oneRepMax';
 import { formatWeight } from '../shared/calc/units';
 import type { ExerciseSet } from '../shared/models/types';
 import { useExerciseStore } from '../store/useExerciseStore';
@@ -49,10 +49,12 @@ export default function LogExercisePage() {
     [latestEntry],
   );
 
-  const previousOneRM = useMemo(
-    () => (latestEntry ? best1RMFromSets(latestEntry.sets) : null),
+  const previous1RMData = useMemo(
+    () => (latestEntry ? best1RMFromSetsDetailed(latestEntry.sets) : null),
     [latestEntry],
   );
+  const previousOneRM = previous1RMData?.value ?? null;
+  const previous1RMSourceReps = previous1RMData?.sourceReps;
 
   const initialWeightKg = isBodyweight ? null : previousWorkingSet?.weightKg ?? barbellWeightKg;
   const initialReps = previousWorkingSet?.reps ?? 5;
@@ -192,7 +194,14 @@ export default function LogExercisePage() {
       <section className="rounded-xl bg-slate-800 p-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Estimated 1RM</h2>
         {previousOneRM !== null ? (
-          <DualWeightDisplay weightKg={previousOneRM} primaryUnit={primaryUnit} className="mt-2 bg-slate-900/70" />
+          <>
+            <DualWeightDisplay weightKg={previousOneRM} primaryUnit={primaryUnit} className="mt-2 bg-slate-900/70" />
+            {previous1RMSourceReps !== undefined && previous1RMSourceReps > 10 && (
+              <p className="mt-2 text-xs text-yellow-400">
+                ⚠️ Based on {previous1RMSourceReps}-rep set — less accurate above 10 reps
+              </p>
+            )}
+          </>
         ) : (
           <p className="mt-2 text-slate-300">No 1RM data yet</p>
         )}
@@ -231,7 +240,13 @@ export default function LogExercisePage() {
         </button>
       </section>
 
-      {previousOneRM !== null && <PercentageChart oneRM={previousOneRM} primaryUnit={primaryUnit} />}
+      {previousOneRM !== null && (
+        <PercentageChart
+          oneRM={previousOneRM}
+          primaryUnit={primaryUnit}
+          sourceReps={previous1RMSourceReps}
+        />
+      )}
 
       <button
         type="button"
