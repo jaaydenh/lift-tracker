@@ -60,6 +60,10 @@ export default function LogExercisePage() {
   const [sets, setSets] = useState<ExerciseSet[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isSaveConfirmed, setIsSaveConfirmed] = useState(false);
+  const [performedDate, setPerformedDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
 
   useEffect(() => {
     if (!exerciseId || !exercise) {
@@ -125,7 +129,7 @@ export default function LogExercisePage() {
         id: uuidv4(),
         exerciseId,
         sets,
-        performedAt: new Date().toISOString(),
+        performedAt: new Date(performedDate + 'T00:00:00').toISOString(),
         estimated1RM_kg: best1RMFromSets(sets),
       });
 
@@ -164,6 +168,26 @@ export default function LogExercisePage() {
           </Link>
         </div>
       </header>
+
+      <section className="rounded-xl bg-slate-800 p-4">
+        <div className="flex items-center gap-3">
+          <label
+            htmlFor="performed-date"
+            className="text-sm font-semibold uppercase tracking-wide text-slate-400"
+          >
+            Date
+          </label>
+          <input
+            id="performed-date"
+            type="date"
+            value={performedDate}
+            onChange={(event) => {
+              setPerformedDate(event.target.value);
+            }}
+            className="min-h-12 flex-1 rounded-lg bg-slate-700 px-3 text-white"
+          />
+        </div>
+      </section>
 
       <section className="rounded-xl bg-slate-800 p-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Estimated 1RM</h2>
