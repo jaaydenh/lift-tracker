@@ -23,10 +23,12 @@
   animation: fadeIn 0.2s ease-out;
 }
 
-html,
-body {
+html {
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
+}
+
+body {
   overflow-x: hidden;
 }
 
