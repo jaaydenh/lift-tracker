@@ -7,6 +7,12 @@ import type { Exercise, ExerciseEntry } from '../shared/models/types';
 import { useExerciseStore } from '../store/useExerciseStore';
 import { useSettingsStore } from '../store/useSettingsStore';
 
+const DAY_IN_MS = 1000 * 60 * 60 * 24;
+
+function getDaysSinceDate(isoDate: string): number {
+  return Math.max(0, Math.floor((Date.now() - new Date(isoDate).getTime()) / DAY_IN_MS));
+}
+
 interface LoggedExercise {
   exercise: Exercise;
   daysSince: number;
@@ -16,29 +22,31 @@ interface LoggedExercise {
 export default function HomePage() {
   const exercises = useExerciseStore((state) => state.exercises);
   const entries = useExerciseStore((state) => state.entries);
-  const getLatestEntry = useExerciseStore((state) => state.getLatestEntry);
-  const getDaysSinceLastEntry = useExerciseStore((state) => state.getDaysSinceLastEntry);
   const { ageBracket, primaryUnit } = useSettingsStore((state) => state.settings);
 
   const loggedExercises = useMemo(() => {
+    // Find the latest entry per exercise directly from entries
+    const latestByExercise = new Map<string, ExerciseEntry>();
+    for (const entry of entries) {
+      const existing = latestByExercise.get(entry.exerciseId);
+      if (
+        !existing ||
+        new Date(entry.performedAt).getTime() > new Date(existing.performedAt).getTime()
+      ) {
+        latestByExercise.set(entry.exerciseId, entry);
+      }
+    }
+
     return exercises
       .map((exercise) => {
-        const lastEntry = getLatestEntry(exercise.id);
-        const daysSince = getDaysSinceLastEntry(exercise.id);
-
-        if (!lastEntry || daysSince === null) {
-          return null;
-        }
-
-        return {
-          exercise,
-          daysSince,
-          lastEntry,
-        };
+        const lastEntry = latestByExercise.get(exercise.id);
+        if (!lastEntry) return null;
+        const daysSince = getDaysSinceDate(lastEntry.performedAt);
+        return { exercise, daysSince, lastEntry };
       })
       .filter((value): value is LoggedExercise => value !== null)
       .sort((a, b) => b.daysSince - a.daysSince);
-  }, [exercises, getDaysSinceLastEntry, getLatestEntry]);
+  }, [exercises, entries]);
 
   const freshThreshold = DETRAINING_THRESHOLDS[ageBracket].fresh;
   const trainSoon = loggedExercises.filter((item) => item.daysSince > freshThreshold);
