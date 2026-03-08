@@ -84,7 +84,7 @@ export default function ExerciseCard({
 
   return (
     <Link
-      to={`/log/${exercise.id}`}
+      to={`/edit/${lastEntry.id}`}
       className="block min-h-12 rounded-xl bg-slate-800 p-4 transition hover:bg-slate-700/90 active:scale-[0.99]"
     >
       <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
