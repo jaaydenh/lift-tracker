@@ -14,33 +14,34 @@ function getSecondaryUnit(unit: WeightUnit): WeightUnit {
 
 export default function DualWeightInput({ valueKg, onChange, primaryUnit }: DualWeightInputProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [draftValue, setDraftValue] = useState(formatWeight(valueKg, primaryUnit));
+  const [draftValue, setDraftValue] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const displayValue = formatWeight(valueKg, primaryUnit);
 
   useEffect(() => {
     if (!isEditing) {
-      setDraftValue(formatWeight(valueKg, primaryUnit));
       return;
     }
 
     inputRef.current?.focus();
     inputRef.current?.select();
-  }, [isEditing, primaryUnit, valueKg]);
+  }, [isEditing]);
 
   const secondaryUnit = getSecondaryUnit(primaryUnit);
 
   const commitDraftValue = () => {
-    const parsed = Number.parseFloat(draftValue);
+    const parsed = Number.parseFloat(draftValue ?? displayValue);
 
     if (Number.isNaN(parsed)) {
-      setDraftValue(formatWeight(valueKg, primaryUnit));
       setIsEditing(false);
+      setDraftValue(null);
       return;
     }
 
     const nextKg = primaryUnit === 'kg' ? parsed : lbsToKg(parsed);
     onChange(Math.max(0, nextKg));
     setIsEditing(false);
+    setDraftValue(null);
   };
 
   const adjustWeight = (direction: 1 | -1) => {
@@ -64,7 +65,7 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
           <input
             ref={inputRef}
             type="text"
-            value={draftValue}
+            value={draftValue ?? displayValue}
             onChange={(event) => setDraftValue(event.target.value)}
             onBlur={commitDraftValue}
             onKeyDown={(event) => {
@@ -74,7 +75,7 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
 
               if (event.key === 'Escape') {
                 setIsEditing(false);
-                setDraftValue(formatWeight(valueKg, primaryUnit));
+                setDraftValue(null);
               }
             }}
             inputMode="decimal"
@@ -83,10 +84,13 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
         ) : (
           <button
             type="button"
-            onClick={() => setIsEditing(true)}
+            onClick={() => {
+              setDraftValue(displayValue);
+              setIsEditing(true);
+            }}
             className="min-h-12 w-full text-3xl font-bold"
           >
-            {formatWeight(valueKg, primaryUnit)} {primaryUnit}
+            {displayValue} {primaryUnit}
           </button>
         )}
 

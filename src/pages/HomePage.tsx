@@ -38,7 +38,7 @@ export default function HomePage() {
       })
       .filter((value): value is LoggedExercise => value !== null)
       .sort((a, b) => b.daysSince - a.daysSince);
-  }, [entries, exercises, getDaysSinceLastEntry, getLatestEntry]);
+  }, [exercises, getDaysSinceLastEntry, getLatestEntry]);
 
   const freshThreshold = DETRAINING_THRESHOLDS[ageBracket].fresh;
   const trainSoon = loggedExercises.filter((item) => item.daysSince > freshThreshold);

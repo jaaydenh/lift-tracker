@@ -20,18 +20,18 @@ export default function SetRow({
   isBodyweight,
 }: SetRowProps) {
   const [isEditingReps, setIsEditingReps] = useState(false);
-  const [draftReps, setDraftReps] = useState(exerciseSet.reps.toString());
+  const [draftReps, setDraftReps] = useState<string | null>(null);
   const repsInputRef = useRef<HTMLInputElement>(null);
+  const repsDisplayValue = exerciseSet.reps.toString();
 
   useEffect(() => {
     if (!isEditingReps) {
-      setDraftReps(exerciseSet.reps.toString());
       return;
     }
 
     repsInputRef.current?.focus();
     repsInputRef.current?.select();
-  }, [exerciseSet.reps, isEditingReps]);
+  }, [isEditingReps]);
 
   const updateReps = (reps: number) => {
     onUpdate({
@@ -41,13 +41,14 @@ export default function SetRow({
   };
 
   const commitDraftReps = () => {
-    const parsed = Number.parseFloat(draftReps);
+    const parsed = Number.parseFloat(draftReps ?? repsDisplayValue);
 
     if (!Number.isNaN(parsed)) {
       updateReps(parsed);
     }
 
     setIsEditingReps(false);
+    setDraftReps(null);
   };
 
   return (
@@ -107,7 +108,7 @@ export default function SetRow({
                 <input
                   ref={repsInputRef}
                   type="text"
-                  value={draftReps}
+                  value={draftReps ?? repsDisplayValue}
                   onChange={(event) => setDraftReps(event.target.value)}
                   onBlur={commitDraftReps}
                   onKeyDown={(event) => {
@@ -117,7 +118,7 @@ export default function SetRow({
 
                     if (event.key === 'Escape') {
                       setIsEditingReps(false);
-                      setDraftReps(exerciseSet.reps.toString());
+                      setDraftReps(null);
                     }
                   }}
                   inputMode="numeric"
@@ -126,10 +127,13 @@ export default function SetRow({
               ) : (
                 <button
                   type="button"
-                  onClick={() => setIsEditingReps(true)}
+                  onClick={() => {
+                    setDraftReps(repsDisplayValue);
+                    setIsEditingReps(true);
+                  }}
                   className="min-h-12 w-full text-3xl font-bold"
                 >
-                  {exerciseSet.reps}
+                  {repsDisplayValue}
                 </button>
               )}
               <p className="mt-1 text-sm text-slate-400">reps</p>
