@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Trash2 } from 'lucide-react';
 import { use1RM } from '../hooks/use1RM';
 import { best1RMFromSetsDetailed } from '../shared/calc/oneRepMax';
 import { formatWeight } from '../shared/calc/units';
@@ -237,10 +238,10 @@ export default function ExerciseHistoryPage() {
                   <button
                     type="button"
                     onClick={() => handleDeleteEntry(entry.id)}
-                    className="absolute right-4 top-4 flex min-h-10 min-w-10 items-center justify-center rounded-lg bg-slate-700 text-lg text-white transition hover:bg-red-600"
+                    className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-700 text-slate-400 transition hover:bg-red-600 hover:text-white"
                     aria-label={`Delete session from ${formatSessionDate(entry.performedAt)}`}
                   >
-                    🗑️
+                    <Trash2 size={14} />
                   </button>
 
                   <h3 className="pr-12 text-base font-semibold text-white">
