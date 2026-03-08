@@ -8,6 +8,9 @@ export interface Exercise {
   name: string;
   category: ExerciseCategory;
   isCustom: boolean;
+  userId?: string | null;
+  updatedAt?: string;
+  deletedAt?: string | null;
 }
 
 export interface ExerciseSet {
@@ -25,6 +28,9 @@ export interface ExerciseEntry {
   notes?: string;
   performedAt: string;        // ISO date
   estimated1RM_kg: number | null;
+  userId?: string | null;
+  updatedAt?: string;
+  deletedAt?: string | null;
 }
 
 export interface UserSettings {
@@ -33,4 +39,22 @@ export interface UserSettings {
   ageBracket: AgeBracket;
   barbellWeightKg: number;
   hasCompletedOnboarding: boolean;
+  userId?: string | null;
+  updatedAt?: string;
+}
+
+export interface SyncQueueItem {
+  id: string;
+  table: 'entries' | 'exercises' | 'settings';
+  recordId: string;
+  op: 'upsert' | 'delete';
+  payload: unknown;
+  updatedAt: string;
+}
+
+export interface SyncState {
+  id: string; // singleton 'sync'
+  lastSyncedAt: string | null;
+  userId: string | null;
+  migrationComplete: boolean;
 }

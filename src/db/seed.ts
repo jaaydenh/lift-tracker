@@ -14,7 +14,7 @@ async function seedSettings(): Promise<void> {
   const count = await db.settings.count();
 
   if (count === 0) {
-    await db.settings.put(DEFAULT_SETTINGS);
+    await db.settings.put({ ...DEFAULT_SETTINGS, updatedAt: new Date().toISOString() });
   }
 }
 
