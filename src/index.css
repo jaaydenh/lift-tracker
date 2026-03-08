@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+:root {
+  --color-fresh: #22c55e;
+  --color-maintain: #eab308;
+  --color-declining: #f97316;
+  --color-decaying: #ef4444;
+}
