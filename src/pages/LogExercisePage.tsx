@@ -243,7 +243,7 @@ export default function LogExercisePage() {
           sets.length === 0 ? 'bg-slate-600' : isSaveConfirmed ? 'bg-green-500' : 'bg-green-600'
         } disabled:cursor-not-allowed`}
       >
-        {isSaveConfirmed ? '✓ Saved' : isSaving ? 'Saving...' : 'Save Workout'}
+        {isSaveConfirmed ? '✓ Saved' : isSaving ? 'Saving...' : 'Save Exercise'}
       </button>
     </div>
   );
