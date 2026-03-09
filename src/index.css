@@ -25,10 +25,12 @@
 
 html {
   -webkit-tap-highlight-color: transparent;
+  background-color: #0f172a;
 }
 
 body {
   overflow-x: hidden;
+  background-color: #0f172a;
 }
 
 /* Prevent zoom on input focus on iOS */
