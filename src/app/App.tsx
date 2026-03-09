@@ -1,3 +1,4 @@
+import AuthGate from '../auth/AuthGate';
 import Layout from '../components/Layout';
 import OnboardingPage from '../pages/OnboardingPage';
 import { useSettingsStore } from '../store/useSettingsStore';
@@ -23,7 +24,9 @@ function AppContent() {
 export default function App() {
   return (
     <Providers>
-      <AppContent />
+      <AuthGate>
+        <AppContent />
+      </AuthGate>
     </Providers>
   );
 }

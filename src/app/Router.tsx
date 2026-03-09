@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import AuthCallbackPage from '../pages/AuthCallbackPage';
 import ExerciseHistoryPage from '../pages/ExerciseHistoryPage';
 import ExercisePickerPage from '../pages/ExercisePickerPage';
 import HomePage from '../pages/HomePage';
@@ -15,6 +16,7 @@ export default function Router() {
         <Route path="/pick" element={<ExercisePickerPage />} />
         <Route path="/history/:exerciseId" element={<ExerciseHistoryPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
       </Routes>
     </BrowserRouter>
   );
