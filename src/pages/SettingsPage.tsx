@@ -1,6 +1,8 @@
-import type { ChangeEvent } from 'react';
+import { useEffect, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { AgeBracket, WeightUnit } from '../shared/models/types';
+import { useAuthStore } from '../auth/useAuthStore';
+import { db } from '../db/database';
 import { useSettingsStore } from '../store/useSettingsStore';
 
 const UNIT_OPTIONS: Array<{ label: string; value: WeightUnit }> = [
@@ -14,10 +16,56 @@ const AGE_OPTIONS: Array<{ label: string; value: AgeBracket }> = [
   { label: '60+', value: 'older' },
 ];
 
+const AUTH_PROVIDER_LABELS: Record<string, string> = {
+  google: 'Google',
+  apple: 'Apple',
+};
+
+function formatLastSynced(lastSyncedAt: string | null): string {
+  if (!lastSyncedAt) {
+    return 'Never';
+  }
+
+  const parsed = new Date(lastSyncedAt);
+  if (Number.isNaN(parsed.getTime())) {
+    return 'Unknown';
+  }
+
+  return parsed.toLocaleString();
+}
+
 export default function SettingsPage() {
   const navigate = useNavigate();
+  const session = useAuthStore((state) => state.session);
+  const signOut = useAuthStore((state) => state.signOut);
   const settings = useSettingsStore((state) => state.settings);
   const updateSettings = useSettingsStore((state) => state.updateSettings);
+  const [pendingSyncCount, setPendingSyncCount] = useState(0);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function loadSyncStatus() {
+      const [queueCount, syncState] = await Promise.all([
+        db.syncQueue.count(),
+        db.syncState.get('sync'),
+      ]);
+
+      if (isCancelled) {
+        return;
+      }
+
+      setPendingSyncCount(queueCount);
+      setLastSyncedAt(syncState?.lastSyncedAt ?? null);
+    }
+
+    void loadSyncStatus();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [session?.user.id]);
 
   function setPrimaryUnit(nextUnit: WeightUnit) {
     if (settings.primaryUnit === nextUnit) {
@@ -54,6 +102,16 @@ export default function SettingsPage() {
     updateBarbellWeight(settings.barbellWeightKg + deltaKg);
   }
 
+  function handleSignOut() {
+    void signOut();
+  }
+
+  const provider = session?.user.app_metadata.provider;
+  const providerLabel =
+    typeof provider === 'string'
+      ? AUTH_PROVIDER_LABELS[provider] ?? `${provider.charAt(0).toUpperCase()}${provider.slice(1)}`
+      : 'Unknown';
+
   return (
     <div className="page-enter space-y-6 pb-24">
       <header className="flex items-center gap-3">
@@ -67,6 +125,45 @@ export default function SettingsPage() {
         </button>
         <h1 className="text-2xl font-bold text-white">Settings</h1>
       </header>
+
+      <section className="space-y-4 rounded-xl bg-slate-800 p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Account</h2>
+            <p className="text-base font-semibold text-white">{session?.user.email ?? 'Signed in user'}</p>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="min-h-12 rounded-lg border border-rose-400/60 bg-rose-500/10 px-4 text-sm font-semibold text-rose-100 transition hover:bg-rose-500/20"
+          >
+            Sign Out
+          </button>
+        </div>
+
+        <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-3">
+          <p className="text-sm text-slate-400">Provider</p>
+          <p className="text-base font-semibold text-slate-100">{providerLabel}</p>
+        </div>
+      </section>
+
+      <section className="space-y-3 rounded-xl bg-slate-800 p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Sync Status</h2>
+        <div className="rounded-lg border border-slate-700 bg-slate-900/60 p-3">
+          <p className="text-sm text-slate-400">Pending changes</p>
+          <p
+            className={`text-base font-semibold ${
+              pendingSyncCount > 0 ? 'text-amber-300' : 'text-emerald-300'
+            }`}
+          >
+            {pendingSyncCount > 0 ? `${pendingSyncCount} changes pending` : 'All synced'}
+          </p>
+        </div>
+        <p className="text-sm text-slate-400">
+          Last synced: <span className="text-slate-200">{formatLastSynced(lastSyncedAt)}</span>
+        </p>
+      </section>
 
       <section className="space-y-3 rounded-xl bg-slate-800 p-4">
         <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Primary Unit</h2>
