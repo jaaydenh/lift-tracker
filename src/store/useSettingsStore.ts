@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { db } from '../db/database';
 import { DEFAULT_SETTINGS } from '../shared/constants';
 import type { UserSettings } from '../shared/models/types';
+import { enqueueSync } from '../sync/queue';
 
 interface SettingsStore {
   settings: UserSettings;
@@ -28,10 +29,12 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     const nextSettings: UserSettings = {
       ...get().settings,
       ...partial,
+      updatedAt: new Date().toISOString(),
     };
 
     set({ settings: nextSettings });
     await db.settings.put(nextSettings);
+    await enqueueSync('settings', 'upsert', nextSettings.id, nextSettings);
   },
 
   completeOnboarding: async () => {

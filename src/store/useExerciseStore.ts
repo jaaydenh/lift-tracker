@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { db } from '../db/database';
 import type { Exercise, ExerciseEntry } from '../shared/models/types';
+import { enqueueSync } from '../sync/queue';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
@@ -38,27 +39,49 @@ export const useExerciseStore = create<ExerciseStore>((set, get) => ({
   },
 
   addEntry: async (entry) => {
-    set((state) => ({ entries: [entry, ...state.entries] }));
-    await db.entries.put(entry);
+    const now = new Date().toISOString();
+    const nextEntry: ExerciseEntry = {
+      ...entry,
+      updatedAt: now,
+    };
+
+    set((state) => ({ entries: [nextEntry, ...state.entries] }));
+    await db.entries.put(nextEntry);
+    await enqueueSync('entries', 'upsert', nextEntry.id, nextEntry);
   },
 
   updateEntry: async (entry) => {
+    const now = new Date().toISOString();
+    const nextEntry: ExerciseEntry = {
+      ...entry,
+      updatedAt: now,
+    };
+
     set((state) => ({
       entries: state.entries.map((existingEntry) =>
-        existingEntry.id === entry.id ? entry : existingEntry,
+        existingEntry.id === nextEntry.id ? nextEntry : existingEntry,
       ),
     }));
-    await db.entries.put(entry);
+    await db.entries.put(nextEntry);
+    await enqueueSync('entries', 'upsert', nextEntry.id, nextEntry);
   },
 
   deleteEntry: async (id) => {
     set((state) => ({ entries: state.entries.filter((entry) => entry.id !== id) }));
     await db.entries.delete(id);
+    await enqueueSync('entries', 'delete', id, { id });
   },
 
   addCustomExercise: async (exercise) => {
-    set((state) => ({ exercises: [...state.exercises, exercise] }));
-    await db.exercises.put(exercise);
+    const now = new Date().toISOString();
+    const nextExercise: Exercise = {
+      ...exercise,
+      updatedAt: now,
+    };
+
+    set((state) => ({ exercises: [...state.exercises, nextExercise] }));
+    await db.exercises.put(nextExercise);
+    await enqueueSync('exercises', 'upsert', nextExercise.id, nextExercise);
   },
 
   getEntriesForExercise: (exerciseId) => {
