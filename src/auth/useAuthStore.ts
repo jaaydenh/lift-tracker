@@ -19,6 +19,18 @@ export const useAuthStore = create<AuthStore>((set) => ({
 
   initialize: async () => {
     try {
+      // Handle PKCE callback if present
+      const url = new URL(window.location.href);
+      if (url.searchParams.has('code')) {
+        const { error } = await supabase.auth.exchangeCodeForSession(url.toString());
+        if (error) {
+          set({ error: error.message, isLoading: false });
+          return;
+        }
+        // Clean up URL — remove code param, redirect to root
+        window.history.replaceState({}, '', '/');
+      }
+
       const {
         data: { session },
       } = await supabase.auth.getSession();

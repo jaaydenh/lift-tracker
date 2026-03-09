@@ -1,26 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../auth/supabaseClient';
+import { useAuthStore } from '../auth/useAuthStore';
 
 export default function AuthCallbackPage() {
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
+  const session = useAuthStore((state) => state.session);
+  const error = useAuthStore((state) => state.error);
 
   useEffect(() => {
-    const handleCallback = async () => {
-      const { error } = await supabase.auth.exchangeCodeForSession(
-        window.location.href,
-      );
-
-      if (error) {
-        setError(error.message);
-      } else {
-        navigate('/', { replace: true });
-      }
-    };
-
-    void handleCallback();
-  }, [navigate]);
+    if (session) {
+      navigate('/', { replace: true });
+    }
+  }, [session, navigate]);
 
   if (error) {
     return (
