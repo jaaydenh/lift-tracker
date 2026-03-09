@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useAuthStore } from './useAuthStore';
 import SignInPage from '../pages/SignInPage';
 import { migrateLocalDataToUser } from '../sync/migration';
+import { runSync, startSyncLoop, stopSyncLoop } from '../sync/syncEngine';
 
 interface AuthGateProps {
   children: ReactNode;
@@ -43,6 +44,17 @@ export default function AuthGate({ children }: AuthGateProps) {
       isCancelled = true;
     };
   }, [userId]);
+
+  useEffect(() => {
+    if (session && !isMigrating) {
+      void runSync();
+      startSyncLoop();
+
+      return () => {
+        stopSyncLoop();
+      };
+    }
+  }, [session, isMigrating]);
 
   if (isLoading) {
     return (
