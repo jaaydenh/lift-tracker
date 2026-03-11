@@ -161,7 +161,7 @@ export default function ExerciseHistoryPage() {
         .sort(sortEntriesByPerformedAtDesc),
     [allEntries, safeExerciseId],
   );
-  const { current1RM, best1RM, history } = use1RM(safeExerciseId);
+  const { current1RM, rollingBest1RM, best1RM, history } = use1RM(safeExerciseId);
 
   const chartPoints = useMemo(() => history.slice(-CHART_MAX_POINTS), [history]);
 
@@ -215,7 +215,13 @@ export default function ExerciseHistoryPage() {
                 </p>
               </div>
               <div className="rounded-lg bg-slate-700/60 p-3">
-                <p className="text-xs uppercase tracking-wide text-slate-300">Best</p>
+                <p className="text-xs uppercase tracking-wide text-slate-300">Rolling Best (6w)</p>
+                <p className="mt-1 text-lg font-semibold text-white">
+                  {rollingBest1RM === null ? '—' : formatWeightWithUnit(rollingBest1RM, primaryUnit)}
+                </p>
+              </div>
+              <div className="col-span-2 rounded-lg bg-slate-700/60 p-3">
+                <p className="text-xs uppercase tracking-wide text-slate-300">Best (All-time)</p>
                 <p className="mt-1 text-lg font-semibold text-white">
                   {best1RM === null ? '—' : formatWeightWithUnit(best1RM, primaryUnit)}
                 </p>

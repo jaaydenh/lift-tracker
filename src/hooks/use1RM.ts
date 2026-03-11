@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { best1RMFromSets, best1RMFromSetsDetailed } from '../shared/calc/oneRepMax';
 import { useExerciseStore } from '../store/useExerciseStore';
 
@@ -10,9 +10,13 @@ interface OneRMHistoryPoint {
 interface Use1RMResult {
   current1RM: number | null;
   currentSourceReps: number | null;
+  rollingBest1RM: number | null;
   best1RM: number | null;
   history: OneRMHistoryPoint[];
 }
+
+const DAY_IN_MS = 1000 * 60 * 60 * 24;
+const ROLLING_WINDOW_DAYS = 42;
 
 interface HistoryCandidate {
   date: string;
@@ -41,6 +45,21 @@ export function use1RM(exerciseId: string): Use1RMResult {
     [allEntries, exerciseId],
   );
 
+  const [rollingWindowStartMs, setRollingWindowStartMs] = useState<number | null>(null);
+
+  useEffect(() => {
+    function updateRollingWindowStart(): void {
+      setRollingWindowStartMs(Date.now() - ROLLING_WINDOW_DAYS * DAY_IN_MS);
+    }
+
+    updateRollingWindowStart();
+    const intervalId = window.setInterval(updateRollingWindowStart, DAY_IN_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
   const current1RMData = useMemo(() => {
     const latestEntry = entries[0];
 
@@ -64,6 +83,24 @@ export function use1RM(exerciseId: string): Use1RMResult {
       .sort(sortByDateAsc);
   }, [entries]);
 
+  const rollingBest1RM = useMemo(() => {
+    if (rollingWindowStartMs === null) {
+      return null;
+    }
+
+    const recentPoints = history.filter(
+      (point) => new Date(point.date).getTime() >= rollingWindowStartMs,
+    );
+
+    if (recentPoints.length === 0) {
+      return null;
+    }
+
+    return recentPoints.reduce((best, point) => {
+      return point.oneRM > best ? point.oneRM : best;
+    }, recentPoints[0].oneRM);
+  }, [history, rollingWindowStartMs]);
+
   const best1RM = useMemo(() => {
     if (history.length === 0) {
       return null;
@@ -77,6 +114,7 @@ export function use1RM(exerciseId: string): Use1RMResult {
   return {
     current1RM,
     currentSourceReps,
+    rollingBest1RM,
     best1RM,
     history,
   };
