@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Info, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ExerciseCard from '../components/ExerciseCard';
 import { DETRAINING_THRESHOLDS } from '../shared/calc/detraining';
@@ -87,13 +88,22 @@ export default function HomePage() {
     <div className="page-enter space-y-6 pb-24">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">{APP_NAME}</h1>
-        <Link
-          to="/settings"
-          aria-label="Open settings"
-          className="flex min-h-12 min-w-12 items-center justify-center rounded-full bg-slate-800 text-xl transition hover:bg-slate-700"
-        >
-          ⚙️
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to="/help"
+            aria-label="Open help"
+            className="flex min-h-12 min-w-12 items-center justify-center rounded-full bg-slate-800 text-xl transition hover:bg-slate-700"
+          >
+            <Info size={20} />
+          </Link>
+          <Link
+            to="/settings"
+            aria-label="Open settings"
+            className="flex min-h-12 min-w-12 items-center justify-center rounded-full bg-slate-800 text-xl transition hover:bg-slate-700"
+          >
+            <Settings size={20} />
+          </Link>
+        </div>
       </header>
 
       <Link

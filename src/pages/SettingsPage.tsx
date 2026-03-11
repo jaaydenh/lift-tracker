@@ -1,5 +1,6 @@
 import { useEffect, useState, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { kgToLbs, lbsToKg } from '../shared/calc/units';
 import type { AgeBracket, WeightUnit } from '../shared/models/types';
 import { useAuthStore } from '../auth/useAuthStore';
 import { db } from '../db/database';
@@ -83,9 +84,23 @@ export default function SettingsPage() {
     void updateSettings({ ageBracket: nextAgeBracket });
   }
 
-  function updateBarbellWeight(nextWeightKg: number) {
-    const normalized = Math.max(0, Math.round(nextWeightKg * 10) / 10);
-    void updateSettings({ barbellWeightKg: normalized });
+  const barbellWeightInPrimaryUnit =
+    settings.primaryUnit === 'kg'
+      ? settings.barbellWeightKg
+      : Math.round(kgToLbs(settings.barbellWeightKg) * 10) / 10;
+
+  const barbellStepInPrimaryUnit = settings.primaryUnit === 'kg' ? 2.5 : 5;
+
+  function updateBarbellWeight(nextWeightInPrimaryUnit: number) {
+    const nextWeightKg =
+      settings.primaryUnit === 'kg' ? nextWeightInPrimaryUnit : lbsToKg(nextWeightInPrimaryUnit);
+
+    const normalizedKg =
+      settings.primaryUnit === 'kg'
+        ? Math.max(0, Math.round(nextWeightKg * 10) / 10)
+        : Math.max(0, nextWeightKg);
+
+    void updateSettings({ barbellWeightKg: normalizedKg });
   }
 
   function handleBarbellInputChange(event: ChangeEvent<HTMLInputElement>) {
@@ -98,8 +113,8 @@ export default function SettingsPage() {
     updateBarbellWeight(nextWeight);
   }
 
-  function adjustBarbellWeight(deltaKg: number) {
-    updateBarbellWeight(settings.barbellWeightKg + deltaKg);
+  function adjustBarbellWeight(deltaInPrimaryUnit: number) {
+    updateBarbellWeight(barbellWeightInPrimaryUnit + deltaInPrimaryUnit);
   }
 
   function handleSignOut() {
@@ -211,13 +226,13 @@ export default function SettingsPage() {
         </h2>
 
         <label htmlFor="barbell-weight" className="block text-sm text-slate-400">
-          Default in kg
+          Default in {settings.primaryUnit}
         </label>
 
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => adjustBarbellWeight(-2.5)}
+            onClick={() => adjustBarbellWeight(-barbellStepInPrimaryUnit)}
             className="flex min-h-12 min-w-12 items-center justify-center rounded-lg border border-slate-700 bg-slate-900/60 text-lg font-semibold text-white transition hover:bg-slate-700/70"
           >
             −
@@ -227,16 +242,16 @@ export default function SettingsPage() {
             id="barbell-weight"
             type="number"
             min={0}
-            step={2.5}
+            step={barbellStepInPrimaryUnit}
             inputMode="decimal"
-            value={settings.barbellWeightKg}
+            value={barbellWeightInPrimaryUnit}
             onChange={handleBarbellInputChange}
             className="min-h-12 w-full rounded-lg border border-slate-700 bg-slate-900/60 px-3 text-lg text-white outline-none transition focus:border-indigo-400"
           />
 
           <button
             type="button"
-            onClick={() => adjustBarbellWeight(2.5)}
+            onClick={() => adjustBarbellWeight(barbellStepInPrimaryUnit)}
             className="flex min-h-12 min-w-12 items-center justify-center rounded-lg border border-slate-700 bg-slate-900/60 text-lg font-semibold text-white transition hover:bg-slate-700/70"
           >
             +

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { formatWeight, lbsToKg, roundToPlate } from '../shared/calc/units';
+import { formatWeight, kgToLbs, lbsToKg, roundToPlate } from '../shared/calc/units';
 import type { WeightUnit } from '../shared/models/types';
 
 interface DualWeightInputProps {
@@ -45,9 +45,14 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
   };
 
   const adjustWeight = (direction: 1 | -1) => {
-    const stepKg = primaryUnit === 'kg' ? 2.5 : lbsToKg(5);
-    const nextValue = roundToPlate(Math.max(0, valueKg + stepKg * direction));
-    onChange(nextValue);
+    if (primaryUnit === 'kg') {
+      const nextKg = roundToPlate(Math.max(0, valueKg + 2.5 * direction));
+      onChange(nextKg);
+      return;
+    }
+
+    const nextLbs = Math.max(0, kgToLbs(valueKg) + 5 * direction);
+    onChange(lbsToKg(nextLbs));
   };
 
   return (
