@@ -80,9 +80,13 @@ export default function SetRow({
         </div>
       </div>
 
-      <div className={`grid gap-3 ${isBodyweight ? 'grid-cols-1' : 'grid-cols-2'}`}>
+      <div
+        className={`grid gap-3 ${
+          isBodyweight ? 'grid-cols-1' : 'grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]'
+        }`}
+      >
         {!isBodyweight && (
-          <div>
+          <div className="min-w-0">
             <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Weight</p>
             <DualWeightInput
               valueKg={exerciseSet.weightKg ?? 0}
@@ -92,18 +96,18 @@ export default function SetRow({
           </div>
         )}
 
-        <div>
+        <div className="min-w-0">
           <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Reps</p>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-800 text-2xl font-semibold leading-none"
+              className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-800 text-xl font-semibold leading-none"
               onClick={() => updateReps(exerciseSet.reps - 1)}
             >
               −
             </button>
 
-            <div className="flex-1 rounded-lg bg-slate-800 px-3 py-2 text-center">
+            <div className="min-w-0 flex-1 rounded-lg bg-slate-800 px-3 py-2 text-center">
               {isEditingReps ? (
                 <input
                   ref={repsInputRef}
@@ -122,7 +126,7 @@ export default function SetRow({
                     }
                   }}
                   inputMode="numeric"
-                  className="min-h-12 w-full bg-transparent text-center text-3xl font-bold focus:outline-none"
+                  className="min-h-12 w-full bg-transparent text-center text-2xl font-bold leading-tight focus:outline-none"
                 />
               ) : (
                 <button
@@ -131,7 +135,7 @@ export default function SetRow({
                     setDraftReps(repsDisplayValue);
                     setIsEditingReps(true);
                   }}
-                  className="min-h-12 w-full text-3xl font-bold"
+                  className="min-h-12 w-full text-2xl font-bold leading-tight"
                 >
                   {repsDisplayValue}
                 </button>
@@ -141,7 +145,7 @@ export default function SetRow({
 
             <button
               type="button"
-              className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-800 text-2xl font-semibold leading-none"
+              className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-800 text-xl font-semibold leading-none"
               onClick={() => updateReps(exerciseSet.reps + 1)}
             >
               +

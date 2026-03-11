@@ -51,16 +51,16 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
   };
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex min-w-0 items-center gap-2">
       <button
         type="button"
-        className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-600 text-2xl font-semibold leading-none"
+        className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-600 text-xl font-semibold leading-none"
         onClick={() => adjustWeight(-1)}
       >
         −
       </button>
 
-      <div className="flex-1 rounded-lg bg-slate-800 px-3 py-2 text-center">
+      <div className="min-w-0 flex-1 rounded-lg bg-slate-800 px-3 py-2 text-center">
         {isEditing ? (
           <input
             ref={inputRef}
@@ -79,7 +79,7 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
               }
             }}
             inputMode="decimal"
-            className="min-h-12 w-full bg-transparent text-center text-3xl font-bold focus:outline-none"
+            className="min-h-12 w-full bg-transparent text-center text-2xl font-bold leading-tight focus:outline-none"
           />
         ) : (
           <button
@@ -88,7 +88,7 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
               setDraftValue(displayValue);
               setIsEditing(true);
             }}
-            className="min-h-12 w-full text-3xl font-bold"
+            className="min-h-12 w-full whitespace-nowrap text-2xl font-bold leading-tight"
           >
             {displayValue} {primaryUnit}
           </button>
@@ -101,7 +101,7 @@ export default function DualWeightInput({ valueKg, onChange, primaryUnit }: Dual
 
       <button
         type="button"
-        className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-600 text-2xl font-semibold leading-none"
+        className="min-h-12 min-w-12 shrink-0 rounded-lg bg-slate-600 text-xl font-semibold leading-none"
         onClick={() => adjustWeight(1)}
       >
         +
