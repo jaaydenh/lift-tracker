@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Pencil, Trash2 } from 'lucide-react';
+import PercentageChart from '../components/PercentageChart';
 import { use1RM } from '../hooks/use1RM';
 import { best1RMFromSetsDetailed } from '../shared/calc/oneRepMax';
 import { formatWeight } from '../shared/calc/units';
@@ -166,7 +167,7 @@ export default function ExerciseHistoryPage() {
   const chartPoints = useMemo(() => history.slice(-CHART_MAX_POINTS), [history]);
 
   function handleBack(): void {
-    navigate(-1);
+    navigate('/');
   }
 
   function handleDeleteEntry(entryId: string): void {
@@ -211,23 +212,32 @@ export default function ExerciseHistoryPage() {
               <div className="rounded-lg bg-slate-700/60 p-3">
                 <p className="text-xs uppercase tracking-wide text-slate-300">Current</p>
                 <p className="mt-1 text-lg font-semibold text-white">
-                  {current1RM === null ? '—' : formatWeightWithUnit(current1RM, primaryUnit)}
+                  {current1RM === null ? '—' : formatDualWeight(current1RM, primaryUnit)}
                 </p>
               </div>
               <div className="rounded-lg bg-slate-700/60 p-3">
                 <p className="text-xs uppercase tracking-wide text-slate-300">Rolling Best (6w)</p>
                 <p className="mt-1 text-lg font-semibold text-white">
-                  {rollingBest1RM === null ? '—' : formatWeightWithUnit(rollingBest1RM, primaryUnit)}
+                  {rollingBest1RM === null ? '—' : formatDualWeight(rollingBest1RM, primaryUnit)}
                 </p>
               </div>
               <div className="col-span-2 rounded-lg bg-slate-700/60 p-3">
                 <p className="text-xs uppercase tracking-wide text-slate-300">Best (All-time)</p>
                 <p className="mt-1 text-lg font-semibold text-white">
-                  {best1RM === null ? '—' : formatWeightWithUnit(best1RM, primaryUnit)}
+                  {best1RM === null ? '—' : formatDualWeight(best1RM, primaryUnit)}
                 </p>
               </div>
             </div>
           </section>
+
+          {rollingBest1RM !== null && (
+            <section className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-300">
+                Rolling Best (6w) 1RM % Chart
+              </p>
+              <PercentageChart oneRM={rollingBest1RM} primaryUnit={primaryUnit} />
+            </section>
+          )}
 
           <OneRMTrendChart points={chartPoints} unit={primaryUnit} />
 

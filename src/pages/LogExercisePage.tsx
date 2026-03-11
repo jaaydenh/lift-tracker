@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import DualWeightDisplay from '../components/DualWeightDisplay';
 import PercentageChart from '../components/PercentageChart';
@@ -242,7 +242,14 @@ export default function LogExercisePage() {
         <div className="flex items-center justify-between gap-3">
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => {
+              if (isEditMode) {
+                navigate(`/history/${resolvedExerciseId}`);
+                return;
+              }
+
+              navigate('/');
+            }}
             className="inline-flex min-h-12 min-w-12 items-center justify-center rounded-lg bg-slate-700 px-3 text-xl"
             aria-label="Go back"
           >
@@ -258,12 +265,17 @@ export default function LogExercisePage() {
             )}
           </div>
 
-          <Link
-            to={`/history/${resolvedExerciseId}`}
-            className="inline-flex min-h-12 items-center rounded-lg bg-slate-700 px-3 text-sm font-semibold"
-          >
-            History
-          </Link>
+          {!isEditMode ? (
+            <button
+              type="button"
+              onClick={() => navigate(`/history/${resolvedExerciseId}`)}
+              className="inline-flex min-h-12 items-center rounded-lg bg-slate-700 px-3 text-sm font-semibold"
+            >
+              History
+            </button>
+          ) : (
+            <div className="min-h-12 min-w-12" aria-hidden="true" />
+          )}
         </div>
       </header>
 

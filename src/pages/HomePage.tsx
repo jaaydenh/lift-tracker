@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import ExerciseCard from '../components/ExerciseCard';
 import { DETRAINING_THRESHOLDS } from '../shared/calc/detraining';
@@ -17,23 +17,53 @@ interface LoggedExercise {
   exercise: Exercise;
   daysSince: number;
   lastEntry: ExerciseEntry;
+  rollingBestOneRmKg: number | null;
 }
+
+const ROLLING_WINDOW_DAYS = 42;
 
 export default function HomePage() {
   const exercises = useExerciseStore((state) => state.exercises);
   const entries = useExerciseStore((state) => state.entries);
   const { ageBracket, primaryUnit } = useSettingsStore((state) => state.settings);
 
+  const [rollingWindowStartMs, setRollingWindowStartMs] = useState<number | null>(null);
+
+  useEffect(() => {
+    function updateRollingWindowStart(): void {
+      setRollingWindowStartMs(Date.now() - ROLLING_WINDOW_DAYS * DAY_IN_MS);
+    }
+
+    updateRollingWindowStart();
+    const intervalId = window.setInterval(updateRollingWindowStart, DAY_IN_MS);
+
+    return () => {
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
   const loggedExercises = useMemo(() => {
     // Find the latest entry per exercise directly from entries
     const latestByExercise = new Map<string, ExerciseEntry>();
+    const rollingBestByExercise = new Map<string, number>();
+
     for (const entry of entries) {
+      const performedAtMs = new Date(entry.performedAt).getTime();
+
       const existing = latestByExercise.get(entry.exerciseId);
-      if (
-        !existing ||
-        new Date(entry.performedAt).getTime() > new Date(existing.performedAt).getTime()
-      ) {
+      if (!existing || performedAtMs > new Date(existing.performedAt).getTime()) {
         latestByExercise.set(entry.exerciseId, entry);
+      }
+
+      if (
+        rollingWindowStartMs !== null &&
+        performedAtMs >= rollingWindowStartMs &&
+        entry.estimated1RM_kg !== null
+      ) {
+        const previousBest = rollingBestByExercise.get(entry.exerciseId);
+        if (previousBest === undefined || entry.estimated1RM_kg > previousBest) {
+          rollingBestByExercise.set(entry.exerciseId, entry.estimated1RM_kg);
+        }
       }
     }
 
@@ -42,11 +72,12 @@ export default function HomePage() {
         const lastEntry = latestByExercise.get(exercise.id);
         if (!lastEntry) return null;
         const daysSince = getDaysSinceDate(lastEntry.performedAt);
-        return { exercise, daysSince, lastEntry };
+        const rollingBestOneRmKg = rollingBestByExercise.get(exercise.id) ?? null;
+        return { exercise, daysSince, lastEntry, rollingBestOneRmKg };
       })
       .filter((value): value is LoggedExercise => value !== null)
       .sort((a, b) => b.daysSince - a.daysSince);
-  }, [exercises, entries]);
+  }, [exercises, entries, rollingWindowStartMs]);
 
   const freshThreshold = DETRAINING_THRESHOLDS[ageBracket].fresh;
   const trainSoon = loggedExercises.filter((item) => item.daysSince > freshThreshold);
@@ -93,6 +124,7 @@ export default function HomePage() {
                     exercise={item.exercise}
                     daysSince={item.daysSince}
                     lastEntry={item.lastEntry}
+                    rollingBestOneRmKg={item.rollingBestOneRmKg}
                     ageBracket={ageBracket}
                     primaryUnit={primaryUnit}
                   />
@@ -115,6 +147,7 @@ export default function HomePage() {
                     exercise={item.exercise}
                     daysSince={item.daysSince}
                     lastEntry={item.lastEntry}
+                    rollingBestOneRmKg={item.rollingBestOneRmKg}
                     ageBracket={ageBracket}
                     primaryUnit={primaryUnit}
                   />

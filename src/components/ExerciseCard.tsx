@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { best1RMFromSets } from '../shared/calc/oneRepMax';
 import { formatWeight } from '../shared/calc/units';
 import type { AgeBracket, Exercise, ExerciseEntry, ExerciseSet, WeightUnit } from '../shared/models/types';
 import DetrainingBar from './DetrainingBar';
@@ -8,6 +7,7 @@ interface ExerciseCardProps {
   exercise: Exercise;
   daysSince: number | null;
   lastEntry: ExerciseEntry | null;
+  rollingBestOneRmKg: number | null;
   ageBracket: AgeBracket;
   primaryUnit: WeightUnit;
 }
@@ -51,6 +51,7 @@ export default function ExerciseCard({
   exercise,
   daysSince,
   lastEntry,
+  rollingBestOneRmKg,
   ageBracket,
   primaryUnit,
 }: ExerciseCardProps) {
@@ -80,11 +81,9 @@ export default function ExerciseCard({
       ? `${formatWeight(bestSet.weightKg, secondaryUnit)}${secondaryUnit}`
       : null;
 
-  const estimatedOneRmKg = best1RMFromSets(lastEntry.sets);
-
   return (
     <Link
-      to={`/edit/${lastEntry.id}`}
+      to={`/history/${exercise.id}`}
       className="block min-h-12 rounded-xl bg-slate-800 p-4 transition hover:bg-slate-700/90 active:scale-[0.99]"
     >
       <h3 className="text-lg font-semibold text-white">{exercise.name}</h3>
@@ -95,10 +94,10 @@ export default function ExerciseCard({
 
       {dualUnitSummary && <p className="text-xs text-slate-400">{dualUnitSummary}</p>}
 
-      {estimatedOneRmKg !== null && (
+      {rollingBestOneRmKg !== null && (
         <p className="text-xs text-slate-400">
-          Est. 1RM: {formatWeight(estimatedOneRmKg, primaryUnit)}{primaryUnit} (
-          {formatWeight(estimatedOneRmKg, secondaryUnit)}{secondaryUnit})
+          Estimated 1RM: {formatWeight(rollingBestOneRmKg, primaryUnit)}{primaryUnit} (
+          {formatWeight(rollingBestOneRmKg, secondaryUnit)}{secondaryUnit})
         </p>
       )}
 
