@@ -11,10 +11,20 @@
       "expo-secure-store"
     ],
     "ios": {
-      "bundleIdentifier": "com.lifttracker.app"
+      "bundleIdentifier": "com.lifttracker.app",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
-      "package": "com.lifttracker.app"
+      "package": "com.lifttracker.app",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#FFFFFF"
+      }
     },
     "experiments": {
       "typedRoutes": false

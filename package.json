@@ -9,6 +9,10 @@
   ],
   "scripts": {
     "dev": "bun run --filter @lift-tracker/web dev",
+    "mobile:dev": "bun run --filter @lift-tracker/mobile start",
+    "mobile:build:dev": "cd apps/mobile && eas build --platform ios --profile development",
+    "mobile:build:preview": "cd apps/mobile && eas build --platform ios --profile preview",
+    "mobile:build:production": "cd apps/mobile && eas build --platform ios --profile production",
     "build": "bun run --filter @lift-tracker/web build",
     "lint": "bun run --filter @lift-tracker/web lint",
     "preview": "bun run --filter @lift-tracker/web preview",
