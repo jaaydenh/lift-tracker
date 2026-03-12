@@ -16,5 +16,5 @@
     "types": ["expo-router/types", "node"]
   },
   "files": ["expo-env.d.ts"],
-  "include": ["app", "auth", "lib", "providers", "shared", "store", "sync"]
+  "include": ["app", "auth", "components", "hooks", "lib", "providers", "shared", "store", "sync"]
 }
