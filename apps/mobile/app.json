@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Lift Tracker",
+    "slug": "lift-tracker-mobile",
+    "scheme": "lifttracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-router",
+      "expo-secure-store"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.lifttracker.app"
+    },
+    "android": {
+      "package": "com.lifttracker.app"
+    },
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}

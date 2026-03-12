@@ -10,6 +10,7 @@ export default mergeConfig(
         'apps/web/src/**/*.test.ts',
         'packages/shared/src/**/*.test.ts',
         'packages/platform-web/src/**/*.test.ts',
+        'packages/platform-mobile/src/**/*.test.ts',
       ],
     },
   }),

@@ -1,0 +1,22 @@
+import '../global.css';
+import { Stack } from 'expo-router';
+import Providers from '../providers/Providers';
+
+export default function RootLayout() {
+  return (
+    <Providers>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="log/[exerciseId]" options={{ headerShown: true, title: 'Log Exercise' }} />
+        <Stack.Screen name="edit/[entryId]" options={{ headerShown: true, title: 'Edit Entry' }} />
+        <Stack.Screen name="pick" options={{ headerShown: true, title: 'Pick Exercise' }} />
+        <Stack.Screen
+          name="history/[exerciseId]"
+          options={{ headerShown: true, title: 'Exercise History' }}
+        />
+        <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+        <Stack.Screen name="auth/callback" options={{ headerShown: false }} />
+      </Stack>
+    </Providers>
+  );
+}
