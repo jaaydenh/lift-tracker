@@ -6,7 +6,11 @@ export default mergeConfig(
   defineConfig({
     test: {
       environment: 'node',
-      include: ['apps/web/src/**/*.test.ts', 'packages/shared/src/**/*.test.ts'],
+      include: [
+        'apps/web/src/**/*.test.ts',
+        'packages/shared/src/**/*.test.ts',
+        'packages/platform-web/src/**/*.test.ts',
+      ],
     },
   }),
 );

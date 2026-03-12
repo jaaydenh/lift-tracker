@@ -2,6 +2,7 @@
   "files": [],
   "references": [
     { "path": "../../packages/shared" },
+    { "path": "../../packages/platform-web" },
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ]

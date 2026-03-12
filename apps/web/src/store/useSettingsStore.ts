@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { db } from '../db/database';
-import { DEFAULT_SETTINGS } from '../shared/constants';
 import type { UserSettings } from '@lift-tracker/shared';
+import { getStorageAdapter } from '../app/adapterRuntime';
+import { DEFAULT_SETTINGS } from '../shared/constants';
 import { enqueueSync } from '../sync/queue';
 
 interface SettingsStore {
@@ -17,7 +17,8 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   isLoaded: false,
 
   loadSettings: async () => {
-    const savedSettings = await db.settings.get(DEFAULT_SETTINGS.id);
+    const storage = getStorageAdapter();
+    const savedSettings = await storage.settings.get(DEFAULT_SETTINGS.id);
 
     set({
       settings: savedSettings ?? DEFAULT_SETTINGS,
@@ -26,6 +27,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   },
 
   updateSettings: async (partial) => {
+    const storage = getStorageAdapter();
     const nextSettings: UserSettings = {
       ...get().settings,
       ...partial,
@@ -33,8 +35,8 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     };
 
     set({ settings: nextSettings });
-    await db.settings.put(nextSettings);
-    await enqueueSync('settings', 'upsert', nextSettings.id, nextSettings);
+    await storage.settings.put(nextSettings);
+    await enqueueSync('settings', 'upsert', nextSettings.id, nextSettings, storage);
   },
 
   completeOnboarding: async () => {

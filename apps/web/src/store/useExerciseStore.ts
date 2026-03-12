@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { db } from '../db/database';
 import type { Exercise, ExerciseEntry } from '@lift-tracker/shared';
+import { getStorageAdapter } from '../app/adapterRuntime';
 import { enqueueSync } from '../sync/queue';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
@@ -30,15 +30,17 @@ export const useExerciseStore = create<ExerciseStore>((set, get) => ({
   isLoaded: false,
 
   loadData: async () => {
+    const storage = getStorageAdapter();
     const [entries, exercises] = await Promise.all([
-      db.entries.toArray(),
-      db.exercises.toArray(),
+      storage.entries.toArray(),
+      storage.exercises.toArray(),
     ]);
 
     set({ entries, exercises, isLoaded: true });
   },
 
   addEntry: async (entry) => {
+    const storage = getStorageAdapter();
     const now = new Date().toISOString();
     const nextEntry: ExerciseEntry = {
       ...entry,
@@ -46,11 +48,12 @@ export const useExerciseStore = create<ExerciseStore>((set, get) => ({
     };
 
     set((state) => ({ entries: [nextEntry, ...state.entries] }));
-    await db.entries.put(nextEntry);
-    await enqueueSync('entries', 'upsert', nextEntry.id, nextEntry);
+    await storage.entries.put(nextEntry);
+    await enqueueSync('entries', 'upsert', nextEntry.id, nextEntry, storage);
   },
 
   updateEntry: async (entry) => {
+    const storage = getStorageAdapter();
     const now = new Date().toISOString();
     const nextEntry: ExerciseEntry = {
       ...entry,
@@ -62,17 +65,19 @@ export const useExerciseStore = create<ExerciseStore>((set, get) => ({
         existingEntry.id === nextEntry.id ? nextEntry : existingEntry,
       ),
     }));
-    await db.entries.put(nextEntry);
-    await enqueueSync('entries', 'upsert', nextEntry.id, nextEntry);
+    await storage.entries.put(nextEntry);
+    await enqueueSync('entries', 'upsert', nextEntry.id, nextEntry, storage);
   },
 
   deleteEntry: async (id) => {
+    const storage = getStorageAdapter();
     set((state) => ({ entries: state.entries.filter((entry) => entry.id !== id) }));
-    await db.entries.delete(id);
-    await enqueueSync('entries', 'delete', id, { id });
+    await storage.entries.delete(id);
+    await enqueueSync('entries', 'delete', id, { id }, storage);
   },
 
   addCustomExercise: async (exercise) => {
+    const storage = getStorageAdapter();
     const now = new Date().toISOString();
     const nextExercise: Exercise = {
       ...exercise,
@@ -80,8 +85,8 @@ export const useExerciseStore = create<ExerciseStore>((set, get) => ({
     };
 
     set((state) => ({ exercises: [...state.exercises, nextExercise] }));
-    await db.exercises.put(nextExercise);
-    await enqueueSync('exercises', 'upsert', nextExercise.id, nextExercise);
+    await storage.exercises.put(nextExercise);
+    await enqueueSync('exercises', 'upsert', nextExercise.id, nextExercise, storage);
   },
 
   getEntriesForExercise: (exerciseId) => {

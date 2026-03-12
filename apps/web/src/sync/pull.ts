@@ -1,8 +1,14 @@
-import type { Table } from 'dexie';
+import {
+  SYNC_TABLES,
+  toLocalRecord,
+  type StorageAdapter,
+  type StorageTable,
+  type SyncLocalRecordMap,
+  type SyncState,
+  type SyncTableName,
+} from '@lift-tracker/shared';
 import { supabase } from '../auth/supabaseClient';
-import { db } from '../db/database';
-import type { SyncState } from '@lift-tracker/shared';
-import { SYNC_TABLES, toLocalRecord, type SyncLocalRecordMap, type SyncTableName } from '@lift-tracker/shared';
+import { getStorageAdapter } from '../app/adapterRuntime';
 
 const SYNC_STATE_ID = 'sync';
 
@@ -29,7 +35,7 @@ function asIsoString(value: unknown): string | null {
 
 async function applyRemoteRecord<T extends SyncTableName>(
   table: T,
-  localTable: Table<SyncLocalRecordMap[T]>,
+  localTable: StorageTable<SyncLocalRecordMap[T]>,
   remoteRow: Record<string, unknown>,
 ): Promise<string | null> {
   const localRecord = toLocalRecord(table, remoteRow) as unknown as SyncLocalRecordMap[T] & {
@@ -84,9 +90,12 @@ async function fetchRemoteTableRows(
   return (data ?? []) as Record<string, unknown>[];
 }
 
-export async function pullRemoteChanges(userId: string): Promise<void> {
+export async function pullRemoteChanges(
+  userId: string,
+  storageAdapter: StorageAdapter = getStorageAdapter(),
+): Promise<void> {
   const currentState: SyncState =
-    (await db.syncState.get(SYNC_STATE_ID)) ?? {
+    (await storageAdapter.syncState.get(SYNC_STATE_ID)) ?? {
       id: SYNC_STATE_ID,
       lastSyncedAt: null,
       userId,
@@ -104,13 +113,13 @@ export async function pullRemoteChanges(userId: string): Promise<void> {
 
       switch (table) {
         case 'entries':
-          rowUpdatedAt = await applyRemoteRecord('entries', db.entries, row);
+          rowUpdatedAt = await applyRemoteRecord('entries', storageAdapter.entries, row);
           break;
         case 'exercises':
-          rowUpdatedAt = await applyRemoteRecord('exercises', db.exercises, row);
+          rowUpdatedAt = await applyRemoteRecord('exercises', storageAdapter.exercises, row);
           break;
         case 'settings':
-          rowUpdatedAt = await applyRemoteRecord('settings', db.settings, row);
+          rowUpdatedAt = await applyRemoteRecord('settings', storageAdapter.settings, row);
           break;
       }
 
@@ -118,7 +127,7 @@ export async function pullRemoteChanges(userId: string): Promise<void> {
     }
   }
 
-  await db.syncState.put({
+  await storageAdapter.syncState.put({
     id: SYNC_STATE_ID,
     lastSyncedAt: newestSyncedAt,
     userId,

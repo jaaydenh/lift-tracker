@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@lift-tracker/shared": "workspace:*",
+    "@lift-tracker/platform-web": "workspace:*",
     "@supabase/supabase-js": "^2.98.0",
     "dexie": "^4.3.0",
     "dexie-react-hooks": "^4.2.0",

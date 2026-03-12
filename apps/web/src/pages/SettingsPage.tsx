@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { kgToLbs, lbsToKg } from '@lift-tracker/shared';
 import type { AgeBracket, WeightUnit } from '@lift-tracker/shared';
 import { useAuthStore } from '../auth/useAuthStore';
-import { db } from '../db/database';
+import { getStorageAdapter } from '../app/adapterRuntime';
 import { useSettingsStore } from '../store/useSettingsStore';
 
 const UNIT_OPTIONS: Array<{ label: string; value: WeightUnit }> = [
@@ -48,9 +48,10 @@ export default function SettingsPage() {
     let isCancelled = false;
 
     async function loadSyncStatus() {
+      const storage = getStorageAdapter();
       const [queueCount, syncState] = await Promise.all([
-        db.syncQueue.count(),
-        db.syncState.get('sync'),
+        storage.syncQueue.count(),
+        storage.syncState.get('sync'),
       ]);
 
       if (isCancelled) {

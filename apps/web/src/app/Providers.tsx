@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react';
 import { seedDatabase } from '../db/seed';
 import { useExerciseStore } from '../store/useExerciseStore';
 import { useSettingsStore } from '../store/useSettingsStore';
+import AppAdaptersProvider from './AppAdaptersProvider';
 
 interface ProvidersProps {
   children: ReactNode;
@@ -21,13 +22,15 @@ export default function Providers({ children }: ProvidersProps) {
     })();
   }, []);
 
-  if (!settingsLoaded || !exercisesLoaded) {
-    return (
-      <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
-        <p className="text-lg">Loading...</p>
-      </div>
-    );
-  }
-
-  return <>{children}</>;
+  return (
+    <AppAdaptersProvider>
+      {!settingsLoaded || !exercisesLoaded ? (
+        <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">
+          <p className="text-lg">Loading...</p>
+        </div>
+      ) : (
+        <>{children}</>
+      )}
+    </AppAdaptersProvider>
+  );
 }

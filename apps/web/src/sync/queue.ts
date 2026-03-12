@@ -1,15 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
-import { db } from '../db/database';
-import type { SyncQueueItem } from '@lift-tracker/shared';
-import type { SyncTableName } from '@lift-tracker/shared';
+import type { StorageAdapter, SyncQueueItem, SyncTableName } from '@lift-tracker/shared';
+import { getStorageAdapter } from '../app/adapterRuntime';
 
 export async function enqueueSync(
   table: SyncTableName,
   op: SyncQueueItem['op'],
   recordId: string,
   payload: unknown,
+  storageAdapter: StorageAdapter = getStorageAdapter(),
 ): Promise<void> {
-  await db.syncQueue.put({
+  await storageAdapter.syncQueue.put({
     id: uuidv4(),
     table,
     recordId,

@@ -1,6 +1,6 @@
+import { toRemoteRecord, type StorageAdapter } from '@lift-tracker/shared';
 import { supabase } from '../auth/supabaseClient';
-import { db } from '../db/database';
-import { toRemoteRecord } from '@lift-tracker/shared';
+import { getStorageAdapter } from '../app/adapterRuntime';
 
 function asRecord(payload: unknown): Record<string, unknown> {
   if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
@@ -10,8 +10,11 @@ function asRecord(payload: unknown): Record<string, unknown> {
   return {};
 }
 
-export async function pushQueue(userId: string): Promise<void> {
-  const queueItems = await db.syncQueue.orderBy('updatedAt').toArray();
+export async function pushQueue(
+  userId: string,
+  storageAdapter: StorageAdapter = getStorageAdapter(),
+): Promise<void> {
+  const queueItems = await storageAdapter.syncQueue.orderBy('updatedAt');
 
   for (const item of queueItems) {
     try {
@@ -52,7 +55,7 @@ export async function pushQueue(userId: string): Promise<void> {
         }
       }
 
-      await db.syncQueue.delete(item.id);
+      await storageAdapter.syncQueue.delete(item.id);
     } catch (error) {
       console.error('[sync/push] Failed queue item', item, error);
     }
