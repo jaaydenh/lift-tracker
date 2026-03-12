@@ -14,6 +14,7 @@ export default function RootLayout() {
           name="history/[exerciseId]"
           options={{ headerShown: true, title: 'Exercise History' }}
         />
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="sign-in" options={{ headerShown: false }} />
         <Stack.Screen name="auth/callback" options={{ headerShown: false }} />
       </Stack>

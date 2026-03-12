@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Redirect, usePathname } from 'expo-router';
 import { ActivityIndicator, Text, View } from 'react-native';
+import { useSettingsStore } from '../store/useSettingsStore';
 import { migrateLocalDataToUser } from '../sync/migration';
 import { runSync, startSyncLoop, stopSyncLoop } from '../sync/syncEngine';
 import { useAuthStore } from './useAuthStore';
@@ -23,6 +24,7 @@ export default function AuthGate({ children }: AuthGateProps) {
   const isLoading = useAuthStore((state) => state.isLoading);
   const session = useAuthStore((state) => state.session);
   const initialize = useAuthStore((state) => state.initialize);
+  const hasCompletedOnboarding = useSettingsStore((state) => state.settings.hasCompletedOnboarding);
   const userId = session?.user.id;
   const [isMigrating, setIsMigrating] = useState(true);
 
@@ -73,8 +75,10 @@ export default function AuthGate({ children }: AuthGateProps) {
     return <LoadingScreen message="Initializing authentication..." />;
   }
 
+  const isAuthPath = pathname === '/sign-in' || pathname === '/auth/callback';
+
   if (!session) {
-    if (pathname === '/sign-in' || pathname === '/auth/callback') {
+    if (isAuthPath) {
       return <>{children}</>;
     }
 
@@ -85,7 +89,15 @@ export default function AuthGate({ children }: AuthGateProps) {
     return <LoadingScreen message="Syncing your data..." />;
   }
 
-  if (pathname === '/sign-in') {
+  if (!hasCompletedOnboarding && pathname !== '/onboarding') {
+    return <Redirect href="/onboarding" />;
+  }
+
+  if (hasCompletedOnboarding && pathname === '/onboarding') {
+    return <Redirect href="/" />;
+  }
+
+  if (isAuthPath) {
     return <Redirect href="/" />;
   }
 
