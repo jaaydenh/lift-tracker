@@ -13,8 +13,24 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "types": ["expo-router/types", "node"]
+    "types": [
+      "expo-router/types",
+      "node"
+    ]
   },
-  "files": ["expo-env.d.ts"],
-  "include": ["app", "auth", "components", "hooks", "lib", "providers", "shared", "store", "sync"]
+  "files": [
+    "expo-env.d.ts"
+  ],
+  "include": [
+    "app",
+    "auth",
+    "components",
+    "hooks",
+    "lib",
+    "providers",
+    "shared",
+    "store",
+    "sync",
+    "nativewind-env.d.ts"
+  ]
 }
