@@ -16,6 +16,6 @@
   "dependencies": {
     "@lift-tracker/shared": "workspace:*",
     "@react-native-community/netinfo": "^11.4.1",
-    "expo-sqlite": "^16.0.0"
+    "expo-sqlite": "~15.2.14"
   }
 }
