@@ -1,0 +1,21 @@
+{
+  "name": "@lift-tracker/shared",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "import": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./adapters/testing": {
+      "types": "./src/adapters/__tests__/index.ts",
+      "import": "./src/adapters/__tests__/index.ts",
+      "default": "./src/adapters/__tests__/index.ts"
+    }
+  }
+}
