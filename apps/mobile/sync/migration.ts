@@ -1,5 +1,5 @@
 import type { StorageAdapter, SyncState } from '@lift-tracker/shared';
-import { getStorageAdapter } from '../app/adapterRuntime';
+import { getStorageAdapter } from '../lib/adapterRuntime';
 import { enqueueSync } from './queue';
 
 export async function migrateLocalDataToUser(

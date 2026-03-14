@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Exercise, ExerciseEntry } from '@lift-tracker/shared';
-import { getStorageAdapter } from '../app/adapterRuntime';
+import { getStorageAdapter } from '../lib/adapterRuntime';
 import { enqueueSync } from '../sync/queue';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;

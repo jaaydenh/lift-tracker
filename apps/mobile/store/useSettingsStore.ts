@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { UserSettings } from '@lift-tracker/shared';
-import { getStorageAdapter } from '../app/adapterRuntime';
+import { getStorageAdapter } from '../lib/adapterRuntime';
 import { DEFAULT_SETTINGS } from '../shared/constants';
 import { enqueueSync } from '../sync/queue';
 

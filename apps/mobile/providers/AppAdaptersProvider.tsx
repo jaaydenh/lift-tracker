@@ -1,6 +1,6 @@
 import { createContext, useEffect, type ReactNode } from 'react';
-import type { AppAdapters } from '../app/adapterRuntime';
-import { getAppAdapters, setAppAdapters } from '../app/adapterRuntime';
+import type { AppAdapters } from '../lib/adapterRuntime';
+import { getAppAdapters, setAppAdapters } from '../lib/adapterRuntime';
 
 const AppAdaptersContext = createContext<AppAdapters | null>(null);
 

@@ -8,7 +8,7 @@ import {
   type SyncTableName,
 } from '@lift-tracker/shared';
 import { supabase } from '../lib/supabaseClient';
-import { getStorageAdapter } from '../app/adapterRuntime';
+import { getStorageAdapter } from '../lib/adapterRuntime';
 
 const SYNC_STATE_ID = 'sync';
 

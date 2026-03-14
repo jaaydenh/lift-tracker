@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
-import { getAppAdapters } from '../app/adapterRuntime';
+import { getAppAdapters } from '../lib/adapterRuntime';
 import { seedDatabase } from '../lib/seed';
 import { useExerciseStore } from '../store/useExerciseStore';
 import { useSettingsStore } from '../store/useSettingsStore';

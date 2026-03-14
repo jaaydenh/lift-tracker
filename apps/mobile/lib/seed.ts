@@ -1,5 +1,5 @@
 import { BUILT_IN_EXERCISES } from '@lift-tracker/shared';
-import { getStorageAdapter } from '../app/adapterRuntime';
+import { getStorageAdapter } from '../lib/adapterRuntime';
 import { DEFAULT_SETTINGS } from '../shared/constants';
 
 async function seedExercises(): Promise<void> {

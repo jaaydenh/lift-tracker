@@ -1,6 +1,6 @@
 import { createSyncEngine } from '@lift-tracker/shared';
 import { useAuthStore } from '../auth/useAuthStore';
-import { getAppAdapters } from '../app/adapterRuntime';
+import { getAppAdapters } from '../lib/adapterRuntime';
 import { pullRemoteChanges } from './pull';
 import { pushQueue } from './push';
 

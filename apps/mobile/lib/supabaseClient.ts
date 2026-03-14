@@ -9,9 +9,12 @@ const environment =
   }).process?.env ?? {};
 
 const supabaseUrl = environment.EXPO_PUBLIC_SUPABASE_URL ?? '';
-const supabasePublishableKey = environment.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? '';
+const supabaseAnonKey =
+  environment.EXPO_PUBLIC_SUPABASE_ANON_KEY ??
+  environment.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY ??
+  '';
 
-export const supabase = createClient(supabaseUrl, supabasePublishableKey, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     flowType: 'pkce',
     storage: secureStoreAdapter,

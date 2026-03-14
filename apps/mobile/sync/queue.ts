@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { StorageAdapter, SyncQueueItem, SyncTableName } from '@lift-tracker/shared';
-import { getStorageAdapter } from '../app/adapterRuntime';
+import { getStorageAdapter } from '../lib/adapterRuntime';
 
 export async function enqueueSync(
   table: SyncTableName,

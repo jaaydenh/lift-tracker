@@ -3,7 +3,7 @@ import { usePathname, useRouter } from 'expo-router';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { kgToLbs, lbsToKg } from '@lift-tracker/shared';
 import type { AgeBracket, WeightUnit } from '@lift-tracker/shared';
-import { getStorageAdapter } from '../adapterRuntime';
+import { getStorageAdapter } from '../../lib/adapterRuntime';
 import { useAuthStore } from '../../auth/useAuthStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 

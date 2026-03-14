@@ -1,6 +1,6 @@
 import { toRemoteRecord, type StorageAdapter } from '@lift-tracker/shared';
 import { supabase } from '../lib/supabaseClient';
-import { getStorageAdapter } from '../app/adapterRuntime';
+import { getStorageAdapter } from '../lib/adapterRuntime';
 
 function asRecord(payload: unknown): Record<string, unknown> {
   if (payload && typeof payload === 'object' && !Array.isArray(payload)) {
