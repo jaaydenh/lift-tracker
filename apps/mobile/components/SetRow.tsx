@@ -81,17 +81,18 @@ export default function SetRow({
         </View>
       </View>
 
-      <View className={isBodyweight ? 'gap-3' : 'flex-row gap-3'}>
-        {!isBodyweight && (
-          <View className="min-w-0 flex-1">
-            <Text className="mb-1 text-xs uppercase tracking-wide text-slate-400">Weight</Text>
-            <DualWeightInput
-              valueKg={exerciseSet.weightKg ?? 0}
-              onChange={(weightKg) => onUpdate({ weightKg })}
-              primaryUnit={primaryUnit}
-            />
-          </View>
-        )}
+      <View className="flex-row gap-3">
+        <View className="min-w-0 flex-1">
+          <Text className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+            {isBodyweight ? 'Added weight' : 'Weight'}
+          </Text>
+          <DualWeightInput
+            valueKg={exerciseSet.weightKg}
+            onChange={(weightKg) => onUpdate({ weightKg })}
+            primaryUnit={primaryUnit}
+            isBodyweight={isBodyweight}
+          />
+        </View>
 
         <View className="min-w-0 flex-1">
           <Text className="mb-1 text-xs uppercase tracking-wide text-slate-400">Reps</Text>

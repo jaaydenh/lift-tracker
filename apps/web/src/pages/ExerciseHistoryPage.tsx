@@ -50,7 +50,17 @@ function formatDualWeight(valueKg: number, primaryUnit: WeightUnit): string {
   return `${formatWeightWithUnit(valueKg, primaryUnit)} (${formatWeightWithUnit(valueKg, secondaryUnit)})`;
 }
 
-function formatSetLine(set: ExerciseSet, primaryUnit: WeightUnit): string {
+function formatSetLine(set: ExerciseSet, primaryUnit: WeightUnit, isBodyweight: boolean): string {
+  if (isBodyweight) {
+    const addedWeightKg = set.weightKg !== null && set.weightKg > 0 ? set.weightKg : null;
+
+    if (addedWeightKg === null) {
+      return `BW × ${set.reps}${set.isWarmup ? ' (warm-up)' : ''}`;
+    }
+
+    return `BW + ${formatWeight(addedWeightKg, primaryUnit)} ${primaryUnit} × ${set.reps}${set.isWarmup ? ' (warm-up)' : ''}`;
+  }
+
   if (set.weightKg === null) {
     return `Bodyweight × ${set.reps}${set.isWarmup ? ' (warm-up)' : ''}`;
   }
@@ -153,6 +163,7 @@ export default function ExerciseHistoryPage() {
   const exercise = useExerciseStore((state) =>
     state.exercises.find((item) => item.id === safeExerciseId),
   );
+  const isBodyweight = exercise?.category === 'bodyweight';
   const deleteEntry = useExerciseStore((state) => state.deleteEntry);
   const allEntries = useExerciseStore((state) => state.entries);
   const entries = useMemo(
@@ -280,7 +291,7 @@ export default function ExerciseHistoryPage() {
                         key={set.id}
                         className="flex min-h-12 items-center rounded-lg bg-slate-700/40 px-3 py-2"
                       >
-                        {formatSetLine(set, primaryUnit)}
+                        {formatSetLine(set, primaryUnit, Boolean(isBodyweight))}
                       </li>
                     ))}
                   </ul>

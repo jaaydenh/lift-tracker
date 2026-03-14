@@ -77,11 +77,19 @@ function cloneSet(set: ExerciseSet): ExerciseSet {
   };
 }
 
+function normalizeBodyweightAddedWeight(weightKg: number | null | undefined): number | null {
+  if (weightKg === null || weightKg === undefined || weightKg <= 0) {
+    return null;
+  }
+
+  return weightKg;
+}
+
 function normalizeSet(set: ExerciseSet, isBodyweight: boolean): ExerciseSet {
   return {
     ...set,
     reps: Math.max(1, Math.round(set.reps)),
-    weightKg: isBodyweight ? null : Math.max(0, set.weightKg ?? 0),
+    weightKg: isBodyweight ? normalizeBodyweightAddedWeight(set.weightKg) : Math.max(0, set.weightKg ?? 0),
   };
 }
 
@@ -136,7 +144,9 @@ export default function ExerciseSessionEditor({ mode, exerciseId, entryId }: Exe
     [latestEntry],
   );
 
-  const defaultSetWeight = isBodyweight ? null : previousWorkingSet?.weightKg ?? barbellWeightKg;
+  const defaultSetWeight = isBodyweight
+    ? normalizeBodyweightAddedWeight(previousWorkingSet?.weightKg)
+    : previousWorkingSet?.weightKg ?? barbellWeightKg;
   const defaultSetReps = previousWorkingSet?.reps ?? 5;
 
   const [sets, setSets] = useState<ExerciseSet[]>([]);
@@ -156,14 +166,14 @@ export default function ExerciseSessionEditor({ mode, exerciseId, entryId }: Exe
         return;
       }
 
-      setSets(entryToEdit.sets.map(cloneSet));
+      setSets(entryToEdit.sets.map((set) => normalizeSet(cloneSet(set), isBodyweight)));
       setPerformedDate(isoDateToDateInputValue(entryToEdit.performedAt));
       return;
     }
 
     setSets([createSet(defaultSetWeight, defaultSetReps)]);
     setPerformedDate(todayDateInputValue());
-  }, [defaultSetReps, defaultSetWeight, entryToEdit, exercise, isEditMode, resolvedExerciseId]);
+  }, [defaultSetReps, defaultSetWeight, entryToEdit, exercise, isBodyweight, isEditMode, resolvedExerciseId]);
 
   const current1RMData = useMemo(() => best1RMFromSetsDetailed(sets), [sets]);
   const currentOneRM = current1RMData?.value ?? null;
@@ -179,12 +189,22 @@ export default function ExerciseSessionEditor({ mode, exerciseId, entryId }: Exe
       return `Last session logged ${latestDaysAgo ?? 0}d ago`;
     }
 
+    if (isBodyweight) {
+      const addedWeightKg = normalizeBodyweightAddedWeight(previousWorkingSet.weightKg);
+
+      if (addedWeightKg === null) {
+        return `Last: BW × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
+      }
+
+      return `Last: BW + ${formatWeight(addedWeightKg, primaryUnit)} ${primaryUnit} × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
+    }
+
     if (previousWorkingSet.weightKg === null) {
       return `Last: BW × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
     }
 
     return `Last: ${formatWeight(previousWorkingSet.weightKg, primaryUnit)} ${primaryUnit} × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
-  }, [latestDaysAgo, latestEntry, previousWorkingSet, primaryUnit]);
+  }, [isBodyweight, latestDaysAgo, latestEntry, previousWorkingSet, primaryUnit]);
 
   function handleBack(): void {
     if (isEditMode && resolvedExerciseId) {
@@ -198,7 +218,9 @@ export default function ExerciseSessionEditor({ mode, exerciseId, entryId }: Exe
   function handleAddSet(): void {
     setSets((current) => {
       const previousSet = current[current.length - 1];
-      const nextWeightKg = isBodyweight ? null : previousSet?.weightKg ?? defaultSetWeight;
+      const nextWeightKg = isBodyweight
+        ? normalizeBodyweightAddedWeight(previousSet?.weightKg ?? defaultSetWeight)
+        : previousSet?.weightKg ?? defaultSetWeight;
       const nextReps = previousSet?.reps ?? defaultSetReps;
       const nextIsWarmup = previousSet?.isWarmup ?? false;
 

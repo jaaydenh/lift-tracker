@@ -72,16 +72,28 @@ export default function ExerciseCard({
     );
   }
 
+  const isBodyweight = exercise.category === 'bodyweight';
   const bestSet = getBestSet(lastEntry);
+  const bestSetAddedWeightKg =
+    bestSet && bestSet.weightKg !== null && bestSet.weightKg > 0 ? bestSet.weightKg : null;
+
   const bestSetSummary = bestSet
-    ? bestSet.weightKg === null
-      ? `Bodyweight × ${bestSet.reps}`
-      : `${formatWeight(bestSet.weightKg, primaryUnit)}${primaryUnit} × ${bestSet.reps}`
+    ? isBodyweight
+      ? bestSetAddedWeightKg === null
+        ? `BW × ${bestSet.reps}`
+        : `BW + ${formatWeight(bestSetAddedWeightKg, primaryUnit)}${primaryUnit} × ${bestSet.reps}`
+      : bestSet.weightKg === null
+        ? `Bodyweight × ${bestSet.reps}`
+        : `${formatWeight(bestSet.weightKg, primaryUnit)}${primaryUnit} × ${bestSet.reps}`
     : null;
 
   const dualUnitSummary =
     bestSet && bestSet.weightKg !== null
-      ? `${formatWeight(bestSet.weightKg, secondaryUnit)}${secondaryUnit}`
+      ? isBodyweight
+        ? bestSetAddedWeightKg === null
+          ? null
+          : `BW + ${formatWeight(bestSetAddedWeightKg, secondaryUnit)}${secondaryUnit}`
+        : `${formatWeight(bestSet.weightKg, secondaryUnit)}${secondaryUnit}`
       : null;
 
   return (

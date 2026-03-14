@@ -80,21 +80,18 @@ export default function SetRow({
         </div>
       </div>
 
-      <div
-        className={`grid gap-3 ${
-          isBodyweight ? 'grid-cols-1' : 'grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]'
-        }`}
-      >
-        {!isBodyweight && (
-          <div className="min-w-0">
-            <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Weight</p>
-            <DualWeightInput
-              valueKg={exerciseSet.weightKg ?? 0}
-              onChange={(weightKg) => onUpdate({ ...exerciseSet, weightKg })}
-              primaryUnit={primaryUnit}
-            />
-          </div>
-        )}
+      <div className="grid grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] gap-3">
+        <div className="min-w-0">
+          <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+            {isBodyweight ? 'Added weight' : 'Weight'}
+          </p>
+          <DualWeightInput
+            valueKg={exerciseSet.weightKg}
+            onChange={(weightKg) => onUpdate({ ...exerciseSet, weightKg })}
+            primaryUnit={primaryUnit}
+            isBodyweight={isBodyweight}
+          />
+        </div>
 
         <div className="min-w-0">
           <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Reps</p>

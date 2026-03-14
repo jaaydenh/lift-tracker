@@ -15,7 +15,7 @@ export interface Exercise {
 
 export interface ExerciseSet {
   id: string;
-  weightKg: number | null;   // null for bodyweight
+  weightKg: number | null;   // null means no external load (BW for bodyweight exercises)
   reps: number;
   isWarmup: boolean;
   completedAt: string;        // ISO timestamp

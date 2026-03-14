@@ -45,7 +45,17 @@ function formatDualWeight(valueKg: number, primaryUnit: WeightUnit): string {
   return `${formatWeightWithUnit(valueKg, primaryUnit)} (${formatWeightWithUnit(valueKg, secondaryUnit)})`;
 }
 
-function formatSetLine(set: ExerciseSet, primaryUnit: WeightUnit): string {
+function formatSetLine(set: ExerciseSet, primaryUnit: WeightUnit, isBodyweight: boolean): string {
+  if (isBodyweight) {
+    const addedWeightKg = set.weightKg !== null && set.weightKg > 0 ? set.weightKg : null;
+
+    if (addedWeightKg === null) {
+      return `BW × ${set.reps}${set.isWarmup ? ' (warm-up)' : ''}`;
+    }
+
+    return `BW + ${formatWeight(addedWeightKg, primaryUnit)} ${primaryUnit} × ${set.reps}${set.isWarmup ? ' (warm-up)' : ''}`;
+  }
+
   if (set.weightKg === null) {
     return `Bodyweight × ${set.reps}${set.isWarmup ? ' (warm-up)' : ''}`;
   }
@@ -186,6 +196,8 @@ export default function ExerciseHistoryScreen() {
     [exercises, safeExerciseId],
   );
 
+  const isBodyweight = exercise?.category === 'bodyweight';
+
   const entries = useMemo(
     () =>
       allEntries
@@ -317,7 +329,7 @@ export default function ExerciseHistoryScreen() {
                       <View className="mt-3 gap-2">
                         {entry.sets.map((set) => (
                           <Text key={set.id} className="rounded-lg bg-slate-700/40 px-3 py-2 text-sm text-slate-100">
-                            {formatSetLine(set, primaryUnit)}
+                            {formatSetLine(set, primaryUnit, Boolean(isBodyweight))}
                           </Text>
                         ))}
                       </View>

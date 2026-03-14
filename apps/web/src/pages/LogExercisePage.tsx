@@ -44,6 +44,25 @@ function cloneSet(set: ExerciseSet): ExerciseSet {
   };
 }
 
+function normalizeBodyweightAddedWeight(weightKg: number | null | undefined): number | null {
+  if (weightKg === null || weightKg === undefined || weightKg <= 0) {
+    return null;
+  }
+
+  return weightKg;
+}
+
+function normalizeSetForSave(set: ExerciseSet, isBodyweight: boolean): ExerciseSet {
+  if (!isBodyweight) {
+    return set;
+  }
+
+  return {
+    ...set,
+    weightKg: normalizeBodyweightAddedWeight(set.weightKg),
+  };
+}
+
 export default function LogExercisePage() {
   const { exerciseId: exerciseIdParam, entryId } = useParams<{ exerciseId?: string; entryId?: string }>();
   const navigate = useNavigate();
@@ -82,7 +101,9 @@ export default function LogExercisePage() {
   const previousOneRM = previous1RMData?.value ?? null;
   const previous1RMSourceReps = previous1RMData?.sourceReps;
 
-  const initialWeightKg = isBodyweight ? null : previousWorkingSet?.weightKg ?? barbellWeightKg;
+  const initialWeightKg = isBodyweight
+    ? normalizeBodyweightAddedWeight(previousWorkingSet?.weightKg)
+    : previousWorkingSet?.weightKg ?? barbellWeightKg;
   const initialReps = previousWorkingSet?.reps ?? 5;
 
   const defaultPerformedDate = useMemo(
@@ -111,12 +132,12 @@ export default function LogExercisePage() {
         return;
       }
 
-      setSets(entryToEdit.sets.map(cloneSet));
+      setSets(entryToEdit.sets.map((set) => normalizeSetForSave(cloneSet(set), isBodyweight)));
       return;
     }
 
     setSets([createSet(initialWeightKg, initialReps)]);
-  }, [entryToEdit, exercise, initialReps, initialWeightKg, isEditMode, resolvedExerciseId]);
+  }, [entryToEdit, exercise, initialReps, initialWeightKg, isBodyweight, isEditMode, resolvedExerciseId]);
 
   if (isEditMode && !entryToEdit) {
     return (
@@ -159,6 +180,16 @@ export default function LogExercisePage() {
       return `Last session logged ${latestDaysAgo ?? 0}d ago`;
     }
 
+    if (isBodyweight) {
+      const addedWeightKg = normalizeBodyweightAddedWeight(previousWorkingSet.weightKg);
+
+      if (addedWeightKg === null) {
+        return `Last: BW × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
+      }
+
+      return `Last: BW + ${formatWeight(addedWeightKg, primaryUnit)} ${primaryUnit} × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
+    }
+
     if (previousWorkingSet.weightKg === null) {
       return `Last: BW × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
     }
@@ -169,7 +200,9 @@ export default function LogExercisePage() {
   const handleAddSet = () => {
     setSets((current) => {
       const previousSet = current[current.length - 1];
-      const nextWeightKg = isBodyweight ? null : previousSet?.weightKg ?? initialWeightKg;
+      const nextWeightKg = isBodyweight
+        ? normalizeBodyweightAddedWeight(previousSet?.weightKg ?? initialWeightKg)
+        : previousSet?.weightKg ?? initialWeightKg;
       const nextReps = previousSet?.reps ?? initialReps;
       return [...current, createSet(nextWeightKg, nextReps)];
     });
@@ -194,12 +227,14 @@ export default function LogExercisePage() {
         return;
       }
 
+      const normalizedSets = sets.map((set) => normalizeSetForSave(set, isBodyweight));
+
       const entry = {
         id: entryIdToSave,
         exerciseId: resolvedExerciseId,
-        sets,
+        sets: normalizedSets,
         performedAt: new Date(performedDate + 'T00:00:00').toISOString(),
-        estimated1RM_kg: best1RMFromSets(sets),
+        estimated1RM_kg: best1RMFromSets(normalizedSets),
       };
 
       if (isEditMode) {
@@ -328,7 +363,9 @@ export default function LogExercisePage() {
             index={index}
             onUpdate={(nextSet) => {
               setSets((current) =>
-                current.map((currentSet, currentIndex) => (currentIndex === index ? nextSet : currentSet)),
+                current.map((currentSet, currentIndex) =>
+                  currentIndex === index ? normalizeSetForSave(nextSet, isBodyweight) : currentSet,
+                ),
               );
             }}
             onRemove={() => {
