@@ -80,21 +80,44 @@ export default function SetRow({
         </div>
       </div>
 
-      <div
-        className={`grid gap-3 ${
-          isBodyweight ? 'grid-cols-1' : 'grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]'
-        }`}
-      >
-        {!isBodyweight && (
-          <div className="min-w-0">
-            <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Weight</p>
+      <div className="grid gap-3 grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+        <div className="min-w-0">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <p className="text-xs uppercase tracking-wide text-slate-400">
+              {isBodyweight ? 'Added Weight' : 'Weight'}
+            </p>
+            {isBodyweight && (
+              <button
+                type="button"
+                onClick={() => onUpdate({ ...exerciseSet, weightKg: null })}
+                className={`rounded-md px-2 py-1 text-[11px] font-semibold uppercase tracking-wide transition ${
+                  exerciseSet.weightKg === null
+                    ? 'bg-indigo-500/20 text-indigo-200 border border-indigo-300/60'
+                    : 'bg-slate-800 text-slate-300 border border-slate-600'
+                }`}
+                aria-pressed={exerciseSet.weightKg === null}
+              >
+                BW
+              </button>
+            )}
+          </div>
+
+          {isBodyweight && exerciseSet.weightKg === null ? (
+            <button
+              type="button"
+              onClick={() => onUpdate({ ...exerciseSet, weightKg: 0 })}
+              className="flex min-h-12 w-full items-center justify-center rounded-lg border border-dashed border-slate-500 bg-slate-900/60 px-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-700/70"
+            >
+              + Add weight
+            </button>
+          ) : (
             <DualWeightInput
               valueKg={exerciseSet.weightKg ?? 0}
               onChange={(weightKg) => onUpdate({ ...exerciseSet, weightKg })}
               primaryUnit={primaryUnit}
             />
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="min-w-0">
           <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">Reps</p>

@@ -73,12 +73,16 @@ export default function ExerciseCard({
   const bestSetSummary = bestSet
     ? bestSet.weightKg === null
       ? `Bodyweight × ${bestSet.reps}`
-      : `${formatWeight(bestSet.weightKg, primaryUnit)}${primaryUnit} × ${bestSet.reps}`
+      : exercise.category === 'bodyweight'
+        ? `Bodyweight + ${formatWeight(bestSet.weightKg, primaryUnit)}${primaryUnit} × ${bestSet.reps}`
+        : `${formatWeight(bestSet.weightKg, primaryUnit)}${primaryUnit} × ${bestSet.reps}`
     : null;
 
   const dualUnitSummary =
     bestSet && bestSet.weightKg !== null
-      ? `${formatWeight(bestSet.weightKg, secondaryUnit)}${secondaryUnit}`
+      ? exercise.category === 'bodyweight'
+        ? `Added: ${formatWeight(bestSet.weightKg, secondaryUnit)}${secondaryUnit}`
+        : `${formatWeight(bestSet.weightKg, secondaryUnit)}${secondaryUnit}`
       : null;
 
   return (

@@ -82,7 +82,7 @@ export default function LogExercisePage() {
   const previousOneRM = previous1RMData?.value ?? null;
   const previous1RMSourceReps = previous1RMData?.sourceReps;
 
-  const initialWeightKg = isBodyweight ? null : previousWorkingSet?.weightKg ?? barbellWeightKg;
+  const initialWeightKg = isBodyweight ? (previousWorkingSet?.weightKg ?? null) : previousWorkingSet?.weightKg ?? barbellWeightKg;
   const initialReps = previousWorkingSet?.reps ?? 5;
 
   const defaultPerformedDate = useMemo(
@@ -163,13 +163,17 @@ export default function LogExercisePage() {
       return `Last: BW × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
     }
 
+    if (isBodyweight) {
+      return `Last: BW + ${formatWeight(previousWorkingSet.weightKg, primaryUnit)} ${primaryUnit} × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
+    }
+
     return `Last: ${formatWeight(previousWorkingSet.weightKg, primaryUnit)} ${primaryUnit} × ${previousWorkingSet.reps} reps — ${latestDaysAgo ?? 0}d ago`;
   })();
 
   const handleAddSet = () => {
     setSets((current) => {
       const previousSet = current[current.length - 1];
-      const nextWeightKg = isBodyweight ? null : previousSet?.weightKg ?? initialWeightKg;
+      const nextWeightKg = previousSet?.weightKg ?? initialWeightKg;
       const nextReps = previousSet?.reps ?? initialReps;
       return [...current, createSet(nextWeightKg, nextReps)];
     });
