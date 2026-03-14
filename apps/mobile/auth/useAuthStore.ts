@@ -1,11 +1,6 @@
-import { makeRedirectUri } from 'expo-auth-session';
-import * as Linking from 'expo-linking';
-import * as WebBrowser from 'expo-web-browser';
 import { create } from 'zustand';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabaseClient';
-
-WebBrowser.maybeCompleteAuthSession();
 
 type OAuthProvider = 'google' | 'apple';
 
@@ -20,6 +15,58 @@ interface AuthStore {
   handleAuthCallbackUrl: (callbackUrl: string) => Promise<void>;
 }
 
+interface AuthModules {
+  makeRedirectUri: (options: { scheme: string; path: string }) => string;
+  parseLinkingUrl: (
+    callbackUrl: string,
+  ) => {
+    queryParams?: Record<string, string | string[] | undefined> | null;
+  };
+  maybeCompleteAuthSession: () => void;
+  openAuthSessionAsync: (
+    authUrl: string,
+    redirectTo: string,
+  ) => Promise<{
+    type: string;
+    url?: string;
+  }>;
+}
+
+let authModulesPromise: Promise<AuthModules | null> | null = null;
+let authSessionCompletionHandled = false;
+
+async function getAuthModules(): Promise<AuthModules | null> {
+  authModulesPromise ??= (async () => {
+    try {
+      const [{ makeRedirectUri }, linkingModule, webBrowserModule] = await Promise.all([
+        import('expo-auth-session'),
+        import('expo-linking'),
+        import('expo-web-browser'),
+      ]);
+
+      if (!authSessionCompletionHandled) {
+        webBrowserModule.maybeCompleteAuthSession();
+        authSessionCompletionHandled = true;
+      }
+
+      return {
+        makeRedirectUri,
+        parseLinkingUrl: linkingModule.parse,
+        maybeCompleteAuthSession: webBrowserModule.maybeCompleteAuthSession,
+        openAuthSessionAsync: webBrowserModule.openAuthSessionAsync,
+      } satisfies AuthModules;
+    } catch (error) {
+      console.warn(
+        '[auth] Native auth modules are unavailable in this runtime. OAuth sign-in is disabled.',
+        error,
+      );
+      return null;
+    }
+  })();
+
+  return authModulesPromise;
+}
+
 function pickFirstString(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
     return value[0];
@@ -28,9 +75,25 @@ function pickFirstString(value: string | string[] | undefined): string | undefin
   return value;
 }
 
+function parseQueryParamsFromCallbackUrl(callbackUrl: string): Record<string, string | string[] | undefined> {
+  try {
+    const parsedUrl = new URL(callbackUrl);
+    const params: Record<string, string> = {};
+
+    for (const [key, value] of parsedUrl.searchParams.entries()) {
+      params[key] = value;
+    }
+
+    return params;
+  } catch {
+    return {};
+  }
+}
+
 async function completeAuthWithCallbackUrl(callbackUrl: string): Promise<void> {
-  const parsed = Linking.parse(callbackUrl);
-  const queryParams = parsed.queryParams ?? {};
+  const authModules = await getAuthModules();
+  const parsed = authModules?.parseLinkingUrl(callbackUrl);
+  const queryParams = parsed?.queryParams ?? parseQueryParamsFromCallbackUrl(callbackUrl);
 
   const authError = pickFirstString(queryParams.error as string | string[] | undefined);
   const authErrorDescription = pickFirstString(
@@ -66,7 +129,13 @@ async function completeAuthWithCallbackUrl(callbackUrl: string): Promise<void> {
 }
 
 async function signInWithProvider(provider: OAuthProvider): Promise<void> {
-  const redirectTo = makeRedirectUri({
+  const authModules = await getAuthModules();
+
+  if (!authModules) {
+    throw new Error('OAuth sign-in is unavailable: missing native auth modules in the current runtime.');
+  }
+
+  const redirectTo = authModules.makeRedirectUri({
     scheme: 'lifttracker',
     path: 'auth/callback',
   });
@@ -87,7 +156,7 @@ async function signInWithProvider(provider: OAuthProvider): Promise<void> {
     throw new Error('Supabase did not return an OAuth URL.');
   }
 
-  const authResult = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+  const authResult = await authModules.openAuthSessionAsync(data.url, redirectTo);
 
   if (authResult.type === 'success' && authResult.url) {
     await completeAuthWithCallbackUrl(authResult.url);
