@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import Svg, { Circle, Polyline } from 'react-native-svg';
 import { best1RMFromSetsDetailed, formatWeight } from '@lift-tracker/shared';
 import type { ExerciseSet, WeightUnit } from '@lift-tracker/shared';
 import PercentageChart from '../../components/PercentageChart';
 import { use1RM } from '../../hooks/use1RM';
+import { getOptionalSvgModule } from '../../lib/optionalSvg';
 import { useExerciseStore } from '../../store/useExerciseStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 
@@ -110,6 +110,20 @@ function OneRMTrendChart({ points, unit }: OneRMTrendChartProps) {
       </View>
     );
   }
+
+  const svgModule = getOptionalSvgModule();
+
+  if (!svgModule) {
+    return (
+      <View className="rounded-xl bg-slate-800 p-4">
+        <Text className="text-lg font-semibold text-white">1RM Trend</Text>
+        <Text className="mt-4 text-slate-300">Chart unavailable in this runtime.</Text>
+      </View>
+    );
+  }
+
+  const Svg = svgModule.default;
+  const { Circle, Polyline } = svgModule;
 
   const values = points.map((point) => point.oneRM);
   const minValue = Math.min(...values);

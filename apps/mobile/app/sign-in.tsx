@@ -1,12 +1,25 @@
 import { useState } from 'react';
 import { Redirect } from 'expo-router';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
 import { useAuthStore } from '../auth/useAuthStore';
+import { getOptionalSvgModule } from '../lib/optionalSvg';
 
 type OAuthProvider = 'google' | 'apple';
 
 function GoogleMark() {
+  const svgModule = getOptionalSvgModule();
+
+  if (!svgModule) {
+    return (
+      <View className="h-5 w-5 items-center justify-center rounded-full bg-slate-300">
+        <Text className="text-xs font-semibold text-slate-900">G</Text>
+      </View>
+    );
+  }
+
+  const Svg = svgModule.default;
+  const { Path } = svgModule;
+
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24" accessibilityLabel="Google icon">
       <Path
@@ -30,6 +43,19 @@ function GoogleMark() {
 }
 
 function AppleMark() {
+  const svgModule = getOptionalSvgModule();
+
+  if (!svgModule) {
+    return (
+      <View className="h-5 w-5 items-center justify-center rounded-full bg-slate-100">
+        <Text className="text-xs font-semibold text-slate-900">A</Text>
+      </View>
+    );
+  }
+
+  const Svg = svgModule.default;
+  const { Path } = svgModule;
+
   return (
     <Svg width={20} height={20} viewBox="0 0 24 24" accessibilityLabel="Apple icon">
       <Path
