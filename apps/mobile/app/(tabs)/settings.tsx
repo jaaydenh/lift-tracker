@@ -191,20 +191,37 @@ export default function SettingsScreen() {
       </View>
 
       <SectionCard title="Account">
-        <View className="flex-row items-start justify-between gap-3">
-          <View className="flex-1 gap-1">
-            <Text className="text-base font-semibold text-white">{session?.user.email ?? 'Signed in user'}</Text>
-            <Text className="text-sm text-slate-300">Provider: {providerLabel}</Text>
+        {session ? (
+          <View className="flex-row items-start justify-between gap-3">
+            <View className="flex-1 gap-1">
+              <Text className="text-base font-semibold text-white">{session.user.email ?? 'Signed in user'}</Text>
+              <Text className="text-sm text-slate-300">Provider: {providerLabel}</Text>
+            </View>
+            <Pressable
+              className="rounded-lg border border-rose-400/60 bg-rose-500/10 px-4 py-3"
+              onPress={() => {
+                void signOut();
+              }}
+            >
+              <Text className="text-sm font-semibold text-rose-100">Sign Out</Text>
+            </Pressable>
           </View>
-          <Pressable
-            className="rounded-lg border border-rose-400/60 bg-rose-500/10 px-4 py-3"
-            onPress={() => {
-              void signOut();
-            }}
-          >
-            <Text className="text-sm font-semibold text-rose-100">Sign Out</Text>
-          </Pressable>
-        </View>
+        ) : (
+          <View className="gap-3">
+            <Text className="text-base text-slate-100">You are currently in local-only mode.</Text>
+            <Text className="text-sm text-slate-300">
+              Connect an account to sync your data across devices.
+            </Text>
+            <Pressable
+              className="self-start rounded-lg border border-indigo-400/60 bg-indigo-500/20 px-4 py-3"
+              onPress={() => {
+                router.push('/sign-in');
+              }}
+            >
+              <Text className="text-sm font-semibold text-indigo-100">Connect account</Text>
+            </Pressable>
+          </View>
+        )}
       </SectionCard>
 
       <SectionCard title="Sync Status">

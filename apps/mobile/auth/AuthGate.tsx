@@ -34,7 +34,7 @@ export default function AuthGate({ children }: AuthGateProps) {
 
   useEffect(() => {
     if (!userId) {
-      setIsMigrating(true);
+      setIsMigrating(false);
       return;
     }
 
@@ -77,15 +77,7 @@ export default function AuthGate({ children }: AuthGateProps) {
 
   const isAuthPath = pathname === '/sign-in' || pathname === '/auth/callback';
 
-  if (!session) {
-    if (isAuthPath) {
-      return <>{children}</>;
-    }
-
-    return <Redirect href="/sign-in" />;
-  }
-
-  if (isMigrating) {
+  if (session && isMigrating) {
     return <LoadingScreen message="Syncing your data..." />;
   }
 
@@ -97,7 +89,7 @@ export default function AuthGate({ children }: AuthGateProps) {
     return <Redirect href="/" />;
   }
 
-  if (isAuthPath) {
+  if (session && isAuthPath) {
     return <Redirect href="/" />;
   }
 
