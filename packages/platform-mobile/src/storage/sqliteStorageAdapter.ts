@@ -482,16 +482,22 @@ export function createSqliteStorageAdapter(
 ): SqliteStorageAdapter {
   const databaseName = options.databaseName ?? 'LiftTrackerMobileDB';
   const openDatabase = options.openDatabase ?? openExpoSqliteDatabase;
-  const databasePromise = (async () => {
-    const database = await openDatabase(databaseName);
-    await initializeSchema(database);
-    return database;
-  })();
+  let databasePromise: Promise<SQLiteDatabaseLike> | null = null;
+
+  const getDatabase = (): Promise<SQLiteDatabaseLike> => {
+    databasePromise ??= (async () => {
+      const database = await openDatabase(databaseName);
+      await initializeSchema(database);
+      return database;
+    })();
+
+    return databasePromise;
+  };
 
   const withDatabase = async <TValue>(
     operation: (database: SQLiteDatabaseLike) => Promise<TValue>,
   ): Promise<TValue> => {
-    const database = await databasePromise;
+    const database = await getDatabase();
     return operation(database);
   };
 
@@ -502,8 +508,16 @@ export function createSqliteStorageAdapter(
     syncQueue: createStorageTableAdapter(SYNC_QUEUE_SCHEMA, withDatabase),
     syncState: createStorageTableAdapter(SYNC_STATE_SCHEMA, withDatabase),
     close: async () => {
-      const database = await databasePromise;
-      await database.closeAsync?.();
+      if (!databasePromise) {
+        return;
+      }
+
+      try {
+        const database = await databasePromise;
+        await database.closeAsync?.();
+      } catch {
+        // Ignore close errors when database initialization never completed.
+      }
     },
   };
 }
